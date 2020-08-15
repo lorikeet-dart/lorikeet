@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 class Position {
   num x;
 
@@ -24,10 +26,16 @@ class Color {
   int get bInt => (r * 255).toInt();
 
   int get aInt => (r * 255).toInt();
+
+  Float32List get asList => Float32List.fromList([r, g, b, a]);
+
+  Uint8List get asIntList => Uint8List.fromList([rInt, gInt, bInt, aInt]);
 }
 
 class Background {
   Color color;
 
-  Background({this.color});
+  dynamic image;
+
+  Background({this.color, this.image});
 }

@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:web_gl';
 
 import 'package:lorikeet/src/glutil/attribute.dart';
@@ -14,23 +15,23 @@ class BasicObjectRenderer implements ObjectRenderer {
 
   final Program program;
 
-  final AttributeInfo vertexBuffer;
+  final AttributeInfo positionAttribute;
 
-  final AttributeInfo texCoordsBuffer;
+  final AttributeInfo texCoordsAttribute;
 
-  final UniformInfo projectionMatrixUniform;
+  final Matrix2DUniformInfo projectionMatrixUniform;
 
-  final UniformInfo bgColorUniform;
+  final ColorUniformInfo bgColorUniform;
 
-  final UniformInfo textureUniform;
+  final TextureUniformInfo textureUniform;
 
-  final UniformInfo textureOpacityUniform;
+  final FloatUniformInfo textureOpacityUniform;
 
   BasicObjectRenderer(
       {this.ctx,
       this.program,
-      this.vertexBuffer,
-      this.texCoordsBuffer,
+      this.positionAttribute,
+      this.texCoordsAttribute,
       this.projectionMatrixUniform,
       this.bgColorUniform,
       this.textureUniform,
@@ -40,16 +41,35 @@ class BasicObjectRenderer implements ObjectRenderer {
   void render(Renderer renderer, Object2D object) {
     renderer.useProgram(program);
 
-    // TODO
+    final numVertices = object.vertices.length;
 
-    ctx.bufferData(WebGL.ARRAY_BUFFER, vertices, STATIC_DRAW);
-    ctx.bindBuffer(WebGL.ARRAY_BUFFER, vbuffer);
-    ctx.vertexAttribPointer(aVertexPosition, 2, WebGL.FLOAT, false, 0, 0);
+    final positions = Float32List(numVertices * 2);
+    for (int i = 0; i < numVertices; i++) {
+      positions[i * 2] = object.vertices[i].x;
+      positions[i * 2 + 1] = object.vertices[i].y;
+    }
+    positionAttribute.set(positions);
 
-    ctx.bindBuffer(WebGL.ARRAY_BUFFER, tbuffer);
-    ctx.vertexAttribPointer(aTextureCoord, 2, WebGL.FLOAT, false, 0, 0);
+    final texCoords = Float32List(numVertices * 2);
+    for (int i = 0; i < numVertices; i++) {
+      positions[i * 2] = 0; // TODO
+      positions[i * 2 + 1] = 0; // TODO
+    }
+    texCoordsAttribute.set(texCoords);
 
-    ctx.drawArrays(WebGL.TRIANGLES, 0, numItems);
+    projectionMatrixUniform.setData(object.transformationMatrix);
+
+    final background = object.background;
+    bgColorUniform.setData(background.color);
+
+    if (background.image == null) {
+      textureUniform.setTexture(renderer.noTexture);
+      textureOpacityUniform.setData(0);
+    } else {
+      throw Exception('Texture support not implemented yet!');
+    }
+
+    ctx.drawArrays(WebGL.TRIANGLES, 0, numVertices);
   }
 
   static const vertexShaderSource = '''
@@ -109,8 +129,12 @@ void main(void) {
 
     final vertexAttrbiute =
         AttributeInfo.makeArrayBuffer(ctx, program, 'vertex');
+    ctx.vertexAttribPointer(
+        vertexAttrbiute.location, 2, WebGL.FLOAT, false, 0, 0);
     final texCoordsAttrbiute =
         AttributeInfo.makeArrayBuffer(ctx, program, 'texCoords');
+    ctx.vertexAttribPointer(
+        texCoordsAttrbiute.location, 2, WebGL.FLOAT, false, 0, 0);
 
     final projectionMatrixUniform =
         Matrix2DUniformInfo.make(ctx, program, 'projectionMatrix');
@@ -119,13 +143,15 @@ void main(void) {
     final textureOpacityUniform =
         FloatUniformInfo.make(ctx, program, 'textureOpacity');
 
-    // TODO
-
     return BasicObjectRenderer(
         ctx: ctx,
         program: program,
-        vertexBuffer: vertexAttrbiute,
-        texCoordsBuffer: texCoordsAttrbiute);
+        positionAttribute: vertexAttrbiute,
+        texCoordsAttribute: texCoordsAttrbiute,
+        projectionMatrixUniform: projectionMatrixUniform,
+        bgColorUniform: bgColorUniform,
+        textureUniform: textureUniform,
+        textureOpacityUniform: textureOpacityUniform);
   }
 }
 
@@ -134,9 +160,9 @@ class Object2D {
 
   List<Position> vertices;
 
-  List<Background> background;
+  Background background;
 
-  Matrix2D localTransformationMatrix;
+  Matrix2D transformationMatrix;
 
   ObjectRenderer shader;
 
@@ -150,9 +176,13 @@ class Renderer {
 
   RenderingContext2 ctx;
 
-  List<Texture> textures;
+  final textures = <String, Texture>{};
+
+  final Texture noTexture;
 
   Program currentProgram;
+
+  Renderer._({this.ctx, this.noTexture, this.clearColor});
 
   void useProgram(Program program) {
     if (currentProgram == program) {
@@ -172,5 +202,12 @@ class Renderer {
     for (final object in objects) {
       object.shader.render(this, object);
     }
+  }
+
+  static Renderer makeRenderer(RenderingContext2 ctx, {Color clearColor}) {
+    clearColor ??= Color();
+    final noTexture = makePixelTexture(ctx, Color());
+
+    return Renderer._(ctx: ctx, clearColor: clearColor, noTexture: noTexture);
   }
 }

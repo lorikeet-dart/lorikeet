@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:web_gl';
 
 import 'package:lorikeet/src/matrix.dart';
@@ -90,4 +91,13 @@ class TextureUniformInfo implements UniformInfo {
     final location = ctx.getUniformLocation(program, uniformName);
     return TextureUniformInfo(ctx: ctx, location: location);
   }
+}
+
+Texture makePixelTexture(RenderingContext2 ctx, Color color) {
+  final texture = ctx.createTexture();
+  ctx.bindTexture(WebGL.TEXTURE_2D, texture);
+  ctx.texImage2D(WebGL.TEXTURE_2D, 0, WebGL.RGBA, 1, 1, 0, WebGL.RGBA,
+      WebGL.FLOAT, color.asList);
+
+  return texture;
 }

@@ -1,7 +1,6 @@
 import 'package:lorikeet/src/matrix.dart';
 
-
-
+/*
 abstract class DisplayObject {}
 
 class Group implements DisplayObject {
@@ -21,3 +20,4 @@ class Mesh implements DisplayObject {
     return Mesh();
   }
 }
+ */
