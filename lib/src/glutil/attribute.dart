@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 import 'dart:web_gl';
 
+import 'package:lorikeet/src/primitive.dart';
+
 class AttributeInfo {
   final RenderingContext2 ctx;
 
@@ -12,7 +14,14 @@ class AttributeInfo {
 
   void set(TypedData data) {
     ctx.bindBuffer(WebGL.ARRAY_BUFFER, buffer);
+    ctx.enableVertexAttribArray(location);
     ctx.bufferData(WebGL.ARRAY_BUFFER, data, WebGL.STATIC_DRAW);
+  }
+
+  void setVertex2(Vertex2 vertex) {
+    ctx.bindBuffer(WebGL.ARRAY_BUFFER, buffer); // TODO can this be removed?
+    ctx.disableVertexAttribArray(location);
+    ctx.vertexAttrib2f(location, vertex.x, vertex.y);
   }
 
   static AttributeInfo makeArrayBuffer(
@@ -20,7 +29,6 @@ class AttributeInfo {
     Buffer buffer = ctx.createBuffer();
     ctx.bindBuffer(WebGL.ARRAY_BUFFER, buffer);
     int location = ctx.getAttribLocation(program, attributeName);
-    ctx.enableVertexAttribArray(location);
     final attributeInfo =
         AttributeInfo(ctx: ctx, buffer: buffer, location: location);
 

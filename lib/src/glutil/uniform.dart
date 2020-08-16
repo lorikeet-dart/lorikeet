@@ -10,14 +10,14 @@ abstract class UniformInfo {
   UniformLocation get location;
 }
 
-class FloatUniformInfo implements UniformInfo {
+class FloatUniform implements UniformInfo {
   @override
   final RenderingContext2 ctx;
 
   @override
   final UniformLocation location;
 
-  FloatUniformInfo({this.ctx, this.location});
+  FloatUniform({this.ctx, this.location});
 
   void setData(num data) {
     ctx.uniform1f(location, data);
@@ -26,58 +26,78 @@ class FloatUniformInfo implements UniformInfo {
   static UniformInfo make(
       RenderingContext2 ctx, Program program, String uniformName) {
     final location = ctx.getUniformLocation(program, uniformName);
-    return FloatUniformInfo(ctx: ctx, location: location);
+    return FloatUniform(ctx: ctx, location: location);
   }
 }
 
-class ColorUniformInfo implements UniformInfo {
+class ColorUniform implements UniformInfo {
   @override
   final RenderingContext2 ctx;
 
   @override
   final UniformLocation location;
 
-  ColorUniformInfo({this.ctx, this.location});
+  ColorUniform({this.ctx, this.location});
 
   void setData(Color color) {
     ctx.uniform4f(location, color.r, color.g, color.b, color.a);
   }
 
-  static ColorUniformInfo make(
+  static ColorUniform make(
       RenderingContext2 ctx, Program program, String uniformName) {
     final location = ctx.getUniformLocation(program, uniformName);
-    return ColorUniformInfo(ctx: ctx, location: location);
+    return ColorUniform(ctx: ctx, location: location);
   }
 }
 
-class Matrix2DUniformInfo implements UniformInfo {
+class Matrix2Uniform implements UniformInfo {
   @override
   final RenderingContext2 ctx;
 
   @override
   final UniformLocation location;
 
-  Matrix2DUniformInfo({this.ctx, this.location});
+  Matrix2Uniform({this.ctx, this.location});
 
   void setData(Matrix2D matrix) {
     ctx.uniformMatrix2fv(location, false, matrix.items);
   }
 
-  static Matrix2DUniformInfo make(
+  static Matrix2Uniform make(
       RenderingContext2 ctx, Program program, String uniformName) {
     final location = ctx.getUniformLocation(program, uniformName);
-    return Matrix2DUniformInfo(ctx: ctx, location: location);
+    return Matrix2Uniform(ctx: ctx, location: location);
   }
 }
 
-class TextureUniformInfo implements UniformInfo {
+class Matrix4Uniform implements UniformInfo {
   @override
   final RenderingContext2 ctx;
 
   @override
   final UniformLocation location;
 
-  TextureUniformInfo({this.ctx, this.location});
+  Matrix4Uniform({this.ctx, this.location});
+
+  void setData(Matrix4 matrix) {
+    ctx.uniformMatrix2fv(location, false, matrix.items);
+  }
+
+  static Matrix4Uniform make(
+      RenderingContext2 ctx, Program program, String uniformName) {
+    final location = ctx.getUniformLocation(program, uniformName);
+    return Matrix4Uniform(ctx: ctx, location: location);
+  }
+}
+
+class TextureUniform implements UniformInfo {
+  @override
+  final RenderingContext2 ctx;
+
+  @override
+  final UniformLocation location;
+
+  TextureUniform({this.ctx, this.location});
 
   void setTexture(Texture texture) {
     ctx.activeTexture(WebGL.TEXTURE0);
@@ -86,10 +106,10 @@ class TextureUniformInfo implements UniformInfo {
     ctx.uniform1i(location, 0);
   }
 
-  static TextureUniformInfo make(
+  static TextureUniform make(
       RenderingContext2 ctx, Program program, String uniformName) {
     final location = ctx.getUniformLocation(program, uniformName);
-    return TextureUniformInfo(ctx: ctx, location: location);
+    return TextureUniform(ctx: ctx, location: location);
   }
 }
 
