@@ -8,18 +8,41 @@ import 'package:lorikeet/src/primitive.dart';
 import 'package:lorikeet/src/render.dart';
 
 class Object2D {
-  int order;
+  final Renderer renderer;
+
+  int order = 0;
 
   Vertex2s vertices;
 
-  Background background;
+  Background background = Background();
 
-  Matrix2D transformationMatrix;
+  final transformationMatrix = Matrix4.I();
 
   ObjectRenderer shader;
 
-  static Object2D rectangularMesh(Vertex2 topLeft, int width, int height) {
-    return Object2D();
+  Object2D(this.renderer, this.vertices,
+      {this.order = 0,
+      this.background,
+      Matrix4 transformationMatrix,
+      this.shader}) {
+    if (transformationMatrix != null) {
+      this.transformationMatrix.copyFrom(transformationMatrix);
+    }
+  }
+
+  static Object2D rectangularMesh(
+      Renderer renderer, Vertex2 topLeft, int width, int height,
+      {ObjectRenderer shader, Matrix4 transformationMatrix}) {
+    final vertices = Vertex2s.length(6);
+    vertices[0] = Vertex2(x: topLeft.x, y: topLeft.y);
+    vertices[1] = Vertex2(x: topLeft.x + width, y: topLeft.y);
+    vertices[2] = Vertex2(x: topLeft.x + width, y: topLeft.y + height);
+    vertices[3] = Vertex2(x: topLeft.x, y: topLeft.y);
+    vertices[4] = Vertex2(x: topLeft.x, y: topLeft.y + height);
+    vertices[5] = Vertex2(x: topLeft.x + width, y: topLeft.y + height);
+    return Object2D(renderer, vertices,
+        shader: shader ?? renderer.programs['basic'],
+        transformationMatrix: transformationMatrix);
   }
 }
 
@@ -38,7 +61,7 @@ class BasicObjectRenderer implements ObjectRenderer {
 
   final Matrix4Uniform projectionMatrixUniform;
 
-  final Matrix2Uniform transformationMatrixUniform;
+  final Matrix4Uniform transformationMatrixUniform;
 
   final ColorUniform bgColorUniform;
 
@@ -90,25 +113,27 @@ attribute vec2 vertex;
 attribute vec2 texCoord;
 
 uniform mat4 projectionMatrix;
-uniform mat3 transformationMatrix;
+uniform mat4 transformationMatrix;
 
-varying vec2 texCoordOut;
+varying vec2 vTexCoord;
 
 void main(void){
-   gl_Position = vec4((projectionMatrix * transformationMatrix * vec3(vertex, 1.0)).xy, 0.0, 1.0);
-   texCoordOut = texCoord;
+   gl_Position = projectionMatrix * transformationMatrix * vec4(vertex, 0.0, 1.0);
+   vTexCoord = texCoord;
 }
   ''';
 
   static const fragmentShaderSource = '''
+precision mediump float;
+  
 uniform vec4 bgColor;
 uniform sampler2D texture;
 uniform float textureOpacity;
 
-varying vec2 texCoord;
+varying vec2 vTexCoord;
 
 void main(void) {
-  gl_FragColor = bgColor + texture2D(texture, texCoord) * textureOpacity;
+  gl_FragColor = bgColor + texture2D(texture, vTexCoord) * textureOpacity;
 }
   ''';
 
@@ -132,7 +157,7 @@ void main(void) {
     }
 
     if (!ctx.getShaderParameter(fs, WebGL.COMPILE_STATUS)) {
-      final msg = ctx.getShaderInfoLog(vs);
+      final msg = ctx.getShaderInfoLog(fs);
       throw Exception('Compiling fragment shader failed: $msg');
     }
 
@@ -146,14 +171,14 @@ void main(void) {
     ctx.vertexAttribPointer(
         vertexAttrbiute.location, 2, WebGL.FLOAT, false, 0, 0);
     final texCoordsAttrbiute =
-        AttributeInfo.makeArrayBuffer(ctx, program, 'texCoords');
+        AttributeInfo.makeArrayBuffer(ctx, program, 'texCoord');
     ctx.vertexAttribPointer(
         texCoordsAttrbiute.location, 2, WebGL.FLOAT, false, 0, 0);
 
     final projectionMatrixUniform =
         Matrix4Uniform.make(ctx, program, 'projectionMatrix');
     final transformationMatrixUniform =
-        Matrix2Uniform.make(ctx, program, 'transformationMatrix');
+        Matrix4Uniform.make(ctx, program, 'transformationMatrix');
     final bgColorUniform = ColorUniform.make(ctx, program, 'bgColor');
     final textureUniform = TextureUniform.make(ctx, program, 'texture');
     final textureOpacityUniform =

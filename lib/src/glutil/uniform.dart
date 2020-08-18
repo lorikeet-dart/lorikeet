@@ -50,26 +50,6 @@ class ColorUniform implements UniformInfo {
   }
 }
 
-class Matrix2Uniform implements UniformInfo {
-  @override
-  final RenderingContext2 ctx;
-
-  @override
-  final UniformLocation location;
-
-  Matrix2Uniform({this.ctx, this.location});
-
-  void setData(Matrix2D matrix) {
-    ctx.uniformMatrix2fv(location, false, matrix.items);
-  }
-
-  static Matrix2Uniform make(
-      RenderingContext2 ctx, Program program, String uniformName) {
-    final location = ctx.getUniformLocation(program, uniformName);
-    return Matrix2Uniform(ctx: ctx, location: location);
-  }
-}
-
 class Matrix4Uniform implements UniformInfo {
   @override
   final RenderingContext2 ctx;
@@ -80,7 +60,7 @@ class Matrix4Uniform implements UniformInfo {
   Matrix4Uniform({this.ctx, this.location});
 
   void setData(Matrix4 matrix) {
-    ctx.uniformMatrix2fv(location, false, matrix.items);
+    ctx.uniformMatrix4fv(location, false, matrix.items);
   }
 
   static Matrix4Uniform make(
@@ -117,7 +97,7 @@ Texture makePixelTexture(RenderingContext2 ctx, Color color) {
   final texture = ctx.createTexture();
   ctx.bindTexture(WebGL.TEXTURE_2D, texture);
   ctx.texImage2D(WebGL.TEXTURE_2D, 0, WebGL.RGBA, 1, 1, 0, WebGL.RGBA,
-      WebGL.FLOAT, color.asList);
+      WebGL.UNSIGNED_BYTE, color.asIntList);
 
   return texture;
 }
