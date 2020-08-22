@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:lorikeet/src/primitive.dart';
+
 class Matrix4 {
   final _data = Float32List(16);
 
@@ -66,14 +68,41 @@ class Matrix4 {
     _data[index] = value;
   }
 
+  Vertex4 row(int r) {
+    int i = r * 4;
+    return Vertex4(x: _data[i++], y: _data[i++], z: _data[i++], w: _data[i++]);
+  }
+
   double get(int row, int col) => _data[row * 4 + col];
   void set(int row, int col, double value) => _data[(row * 4) + col] = value;
+
+  Vertex4 multipleVertex4(Vertex4 v) {
+    final ret = Vertex4();
+    for (int i = 0; i < 4; i++) {
+      ret[i] = row(i).dot(v);
+    }
+
+    return ret;
+  }
 
   // TODO translation
 
   // TODO rotation
 
   // TODO scale
+
+  @override
+  String toString() {
+    final sb = StringBuffer('(');
+
+    for(int i = 0; i < 4; i++) {
+      final r = row(i);
+      sb.writeln('${r.x}, ${r.y}, ${r.z}, ${r.w}');
+    }
+    sb.writeln(')');
+
+    return sb.toString();
+  }
 
   static Matrix4 ortho(double left, double right, double bottom, double top,
       double near, double far) {

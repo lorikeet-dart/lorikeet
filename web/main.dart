@@ -8,6 +8,8 @@ import 'package:lorikeet/src/render.dart';
 
 void main() {
   final CanvasElement canvas = querySelector('#rectangle');
+  canvas.width = 500;
+  canvas.height = 500;
   final RenderingContext2 ctx = canvas.getContext('webgl2');
   ctx.viewport(0, 0, 500, 500);
 
@@ -16,14 +18,14 @@ void main() {
       projectionMatrix: Matrix4.ortho(0, 500, 0, 500, -1000.0, 1000.0));
 
   final rect =
-      Object2D.rectangularMesh(renderer, Vertex2(x: 10, y: 10), 10, 10)
+      Object2D.rectangularMesh(renderer, Vertex2(x: 10, y: 10), 250, 250)
         ..background = Background(color: Color(r: 1.0, a: 1.0));
 
   void render() {
     renderer.render([rect]);
-    window.requestAnimationFrame((highResTime) {
+    /*window.requestAnimationFrame((highResTime) {
       render();
-    });
+    });*/
   }
 
   window.requestAnimationFrame((highResTime) {

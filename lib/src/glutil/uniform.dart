@@ -60,7 +60,7 @@ class Matrix4Uniform implements UniformInfo {
   Matrix4Uniform({this.ctx, this.location});
 
   void setData(Matrix4 matrix) {
-    ctx.uniformMatrix4fv(location, false, matrix.items);
+    ctx.uniformMatrix4fv(location, true, matrix.items);
   }
 
   static Matrix4Uniform make(

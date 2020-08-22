@@ -6,6 +6,11 @@ class Vertex2 {
   num y;
 
   Vertex2({this.x = 0, this.y = 0});
+
+  Vertex4 toVertex4({num z = 0, num w = 1}) => Vertex4(x: x, y: y, z: z, w: w);
+
+  @override
+  String toString() => 'Vertex2($x, $y)';
 }
 
 class Vertex2s {
@@ -36,6 +41,43 @@ class Vertex2s {
 
   List<Vertex2> get asVertexList =>
       List<Vertex2>.generate(count, (index) => this[index]);
+}
+
+class Vertex4 {
+  num x;
+
+  num y;
+
+  num z;
+
+  num w;
+
+  Vertex4({this.x = 0, this.y = 0, this.z = 0, this.w = 0});
+
+  num dot(Vertex4 other) =>
+      x * other.x + y * other.y + z * other.z + w * other.w;
+
+  void operator []=(int index, num value) {
+    switch (index) {
+      case 0:
+        x = value;
+        break;
+      case 1:
+        y = value;
+        break;
+      case 2:
+        z = value;
+        break;
+      case 3:
+        w = value;
+        break;
+      default:
+        throw Exception('invalid index: $index');
+    }
+  }
+
+  @override
+  String toString() => 'Vertex4($x, $y, $z, $w)';
 }
 
 class Color {
