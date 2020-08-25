@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'dart:web_gl';
 
 import 'package:lorikeet/src/glutil/attribute.dart';
@@ -55,82 +54,73 @@ class BasicObjectRenderer implements ObjectRenderer {
 
   final Program program;
 
-  final AttributeInfo positionAttribute;
+  final AttributeInfo position;
 
-  // final AttributeInfo texCoordsAttribute;
+  final AttributeInfo texCoords;
 
-  final Matrix4Uniform projectionMatrixUniform;
+  final Matrix4Uniform projectionMatrix;
 
-  final Matrix4Uniform transformationMatrixUniform;
+  final Matrix4Uniform transformationMatrix;
 
   final ColorUniform bgColorUniform;
 
-  // final TextureUniform textureUniform;
+  final TextureUniform textureUniform;
 
-  // final FloatUniform textureOpacityUniform;
+  final FloatUniform textureOpacity;
 
   BasicObjectRenderer({
     this.ctx,
     this.program,
-    this.positionAttribute,
-    // this.texCoordsAttribute,
-    this.transformationMatrixUniform,
-    this.projectionMatrixUniform,
+    this.position,
+    this.texCoords,
+    this.transformationMatrix,
+    this.projectionMatrix,
     this.bgColorUniform,
-    // this.textureUniform,
-    // this.textureOpacityUniform,
+    this.textureUniform,
+    this.textureOpacity,
   });
 
   @override
   void render(Renderer renderer, Object2D object) {
     renderer.useProgram(program);
 
-    print(renderer.projectionMatrix);
-    for (int i = 0; i < object.vertices.count; i++) {
-      print(object.vertices[i]);
-      print(renderer.projectionMatrix.multipleVertex4(object.vertices[i].toVertex4()));
-      print('');
-    }
-
     final numVertices = object.vertices.count;
 
-    positionAttribute.set(object.vertices.asList);
+    position.set(object.vertices.asList);
 
-    projectionMatrixUniform.setData(renderer.projectionMatrix);
-    transformationMatrixUniform.setData(object.transformationMatrix);
+    projectionMatrix.setData(renderer.projectionMatrix);
+    transformationMatrix.setData(object.transformationMatrix);
 
     final background = object.background;
     bgColorUniform.setData(background.color);
 
-    /* TODO
     if (background.image == null) {
-      texCoordsAttribute.setVertex2(Vertex2());
+      texCoords.setVertex2(Vertex2());
 
       textureUniform.setTexture(renderer.noTexture);
-      textureOpacityUniform.setData(0);
+      textureOpacity.setData(0);
     } else {
-      throw Exception('Texture support not implemented yet!');
+      texCoords.set(object.background.texCoords.asList);
+      textureOpacity.setData(1);
 
-      // TODO texCoordsAttribute.set(texCoords);
+      textureUniform.setTexture(background.image.texture);
     }
-     */
 
     ctx.drawArrays(WebGL.TRIANGLES, 0, numVertices);
   }
 
   static const vertexShaderSource = '''
 attribute vec2 vertex;
-// attribute vec2 texCoord;
+attribute vec2 texCoord;
 
 uniform mat4 projectionMatrix;
 uniform mat4 transformationMatrix;
 
-// varying vec2 vTexCoord;
+varying vec2 vTexCoord;
 
 void main(void){
   gl_Position = projectionMatrix * transformationMatrix * vec4(vertex, 0.0, 1.0);
-  // gl_Position = vec4(vertex, 0.0, 1.0);
-  // vTexCoord = texCoord;
+  vTexCoord = texCoord;
 }
   ''';
 
@@ -138,15 +128,14 @@ void main(void){
 precision mediump float;
   
 uniform vec4 bgColor;
-// uniform sampler2D texture;
-// uniform float textureOpacity;
+uniform sampler2D texture;
+uniform float textureOpacity;
 
-// varying vec2 vTexCoord;
+varying vec2 vTexCoord;
 
 void main(void) {
-  // gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-  gl_FragColor = bgColor;
-  // gl_FragColor = bgColor + texture2D(texture, vTexCoord) * textureOpacity;
+  vec4 texColor = texture2D(texture, vTexCoord);
+  gl_FragColor = bgColor * (1.0 - texColor.w) + texColor * texColor.w;
 }
   ''';
 
@@ -163,6 +152,8 @@ void main(void) {
     ctx.attachShader(program, vs);
     ctx.attachShader(program, fs);
     ctx.linkProgram(program);
+
+    ctx.bindAttribLocation(program, 2, 'tc');
 
     if (!ctx.getShaderParameter(vs, WebGL.COMPILE_STATUS)) {
       final msg = ctx.getShaderInfoLog(vs);
@@ -183,34 +174,30 @@ void main(void) {
         AttributeInfo.makeArrayBuffer(ctx, program, 'vertex');
     ctx.vertexAttribPointer(
         vertexAttrbiute.location, 2, WebGL.FLOAT, false, 0, 0);
-    /*
     final texCoordsAttrbiute =
         AttributeInfo.makeArrayBuffer(ctx, program, 'texCoord');
     ctx.vertexAttribPointer(
         texCoordsAttrbiute.location, 2, WebGL.FLOAT, false, 0, 0);
-     */
 
     final projectionMatrixUniform =
         Matrix4Uniform.make(ctx, program, 'projectionMatrix');
     final transformationMatrixUniform =
         Matrix4Uniform.make(ctx, program, 'transformationMatrix');
     final bgColorUniform = ColorUniform.make(ctx, program, 'bgColor');
-    /*
     final textureUniform = TextureUniform.make(ctx, program, 'texture');
     final textureOpacityUniform =
         FloatUniform.make(ctx, program, 'textureOpacity');
-     */
 
     return BasicObjectRenderer(
       ctx: ctx,
       program: program,
-      positionAttribute: vertexAttrbiute,
-      // texCoordsAttribute: texCoordsAttrbiute,
-      projectionMatrixUniform: projectionMatrixUniform,
-      transformationMatrixUniform: transformationMatrixUniform,
+      position: vertexAttrbiute,
+      texCoords: texCoordsAttrbiute,
+      projectionMatrix: projectionMatrixUniform,
+      transformationMatrix: transformationMatrixUniform,
       bgColorUniform: bgColorUniform,
-      // textureUniform: textureUniform,
-      // textureOpacityUniform: textureOpacityUniform,
+      textureUniform: textureUniform,
+      textureOpacity: textureOpacityUniform,
     );
   }
 }

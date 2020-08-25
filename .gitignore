@@ -11,3 +11,4 @@ doc/api/
 
 *.iml
 .idea
+pubspec.lock

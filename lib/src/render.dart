@@ -1,9 +1,13 @@
+import 'dart:html';
 import 'dart:web_gl';
 
 import 'package:lorikeet/src/glutil/uniform.dart';
 import 'package:lorikeet/src/matrix.dart';
 import 'package:lorikeet/src/object_renderer.dart';
 import 'package:lorikeet/src/primitive.dart';
+
+import 'package:image/image.dart' as imageTools;
+import 'package:http/http.dart';
 
 class Renderer {
   Color clearColor = Color();
@@ -12,7 +16,7 @@ class Renderer {
 
   RenderingContext2 ctx;
 
-  final textures = <String, Texture>{};
+  final _textures = <String, Tex>{};
 
   final programs = <String, ObjectRenderer>{};
 
@@ -25,13 +29,13 @@ class Renderer {
       this.noTexture,
       this.clearColor,
       Matrix4 projectionMatrix,
-      Map<String, Texture> textures = const {},
+      Map<String, Tex> textures = const {},
       Map<String, ObjectRenderer> programs = const {}}) {
     if (projectionMatrix != null) {
       this.projectionMatrix.copyFrom(projectionMatrix);
     }
 
-    this.textures.addAll(textures);
+    _textures.addAll(textures);
     this.programs.addAll(programs);
   }
 
@@ -42,6 +46,41 @@ class Renderer {
 
     ctx.useProgram(program);
     currentProgram = program;
+  }
+
+  Future<void> loadTextureFromUrl(String key, String url) async {
+    final resp = await get(url);
+    if (resp.statusCode != 200) {
+      throw Exception('error downloading image');
+    }
+
+    final data = resp.bodyBytes;
+    final decoder = imageTools.findDecoderForData(data);
+    if (decoder == null) {
+      throw Exception('error finding decoder for image');
+    }
+    final image = decoder.decodeImage(data);
+
+    final texture = ctx.createTexture();
+    ctx.bindTexture(WebGL.TEXTURE_2D, texture);
+
+    ctx.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_MIN_FILTER, WebGL.LINEAR);
+    ctx.texParameteri(
+        WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_S, WebGL.CLAMP_TO_EDGE);
+    ctx.texParameteri(
+        WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_T, WebGL.CLAMP_TO_EDGE);
+
+    ctx.texImage2D(WebGL.TEXTURE_2D, 0, WebGL.RGBA, image.width, image.height,
+        0, WebGL.RGBA, WebGL.UNSIGNED_BYTE, image.getBytes());
+
+    final tex = Tex(width: image.width, height: image.height, texture: texture);
+    _textures[key] = tex;
+  }
+
+  Tex getTexture(String key) {
+    if(_textures.containsKey(key)) return _textures[key];
+
+    throw Exception('texture with key $key not found');
   }
 
   void render(List<Object2D> objects) {

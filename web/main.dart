@@ -6,7 +6,7 @@ import 'package:lorikeet/src/object_renderer.dart';
 import 'package:lorikeet/src/primitive.dart';
 import 'package:lorikeet/src/render.dart';
 
-void main() {
+Future<void> main() async {
   final CanvasElement canvas = querySelector('#rectangle');
   canvas.width = 500;
   canvas.height = 500;
@@ -17,12 +17,30 @@ void main() {
       clearColor: Color(r: 0.5, g: 0.5, b: 0.5, a: 1.0),
       projectionMatrix: Matrix4.ortho(0, 500, 0, 500, -1000.0, 1000.0));
 
-  final rect =
-      Object2D.rectangularMesh(renderer, Vertex2(x: 10, y: 10), 250, 250)
-        ..background = Background(color: Color(r: 1.0, a: 1.0));
+  await renderer.loadTextureFromUrl('dart', '/static/img/dart.png');
+
+  final objects = <Object2D>[];
+
+  {
+    final rect =
+        Object2D.rectangularMesh(renderer, Vertex2(x: 10, y: 10), 250, 250)
+          ..background = Background(
+              color: Color(r: 1.0, a: 1.0), image: renderer.getTexture('dart'));
+    objects.add(rect);
+  }
+
+  /*
+  {
+    final rect =
+        Object2D.rectangularMesh(renderer, Vertex2(x: 10, y: 10), 250, 250)
+          ..background = Background(
+              color: Color(r: 1.0, a: 1.0), image: renderer.getTexture('dart'));
+    objects.add(rect);
+  }
+   */
 
   void render() {
-    renderer.render([rect]);
+    renderer.render(objects);
     /*window.requestAnimationFrame((highResTime) {
       render();
     });*/
