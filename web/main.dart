@@ -15,7 +15,7 @@ Future<void> main() async {
 
   final renderer = Renderer.makeRenderer(ctx,
       clearColor: Color(r: 0.5, g: 0.5, b: 0.5, a: 1.0),
-      projectionMatrix: Matrix4.ortho(0, 500, 0, 500, -1000.0, 1000.0));
+      projectionMatrix: Matrix4.ortho(0, 500, 500, 0, -1000.0, 1000.0));
 
   await renderer.loadTextureFromUrl('dart', '/static/img/dart.png');
 
@@ -29,15 +29,12 @@ Future<void> main() async {
     objects.add(rect);
   }
 
-  /*
   {
     final rect =
-        Object2D.rectangularMesh(renderer, Vertex2(x: 10, y: 10), 250, 250)
-          ..background = Background(
-              color: Color(r: 1.0, a: 1.0), image: renderer.getTexture('dart'));
+        Object2D.rectangularMesh(renderer, Vertex2(x: 200, y: 200), 250, 250)
+          ..background = Background(color: Color(g: 1.0, a: 0.1));
     objects.add(rect);
   }
-   */
 
   void render() {
     renderer.render(objects);
