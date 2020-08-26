@@ -88,6 +88,8 @@ class Renderer {
 
     ctx.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     ctx.clear(WebGL.COLOR_BUFFER_BIT);
+    ctx.enable(WebGL.BLEND);
+    ctx.blendFunc(WebGL.SRC_ALPHA, WebGL.ONE_MINUS_SRC_ALPHA);
 
     for (final object in objects) {
       object.shader.render(this, object);

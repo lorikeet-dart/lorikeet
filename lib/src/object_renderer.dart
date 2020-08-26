@@ -66,8 +66,6 @@ class BasicObjectRenderer implements ObjectRenderer {
 
   final TextureUniform textureUniform;
 
-  final FloatUniform textureOpacity;
-
   BasicObjectRenderer({
     this.ctx,
     this.program,
@@ -77,7 +75,6 @@ class BasicObjectRenderer implements ObjectRenderer {
     this.projectionMatrix,
     this.bgColorUniform,
     this.textureUniform,
-    this.textureOpacity,
   });
 
   @override
@@ -98,10 +95,8 @@ class BasicObjectRenderer implements ObjectRenderer {
       texCoords.setVertex2(Vertex2());
 
       textureUniform.setTexture(renderer.noTexture);
-      textureOpacity.setData(0);
     } else {
       texCoords.set(object.background.texCoords.asList);
-      textureOpacity.setData(1);
 
       textureUniform.setTexture(background.image.texture);
     }
@@ -129,7 +124,6 @@ precision mediump float;
   
 uniform vec4 bgColor;
 uniform sampler2D texture;
-uniform float textureOpacity;
 
 varying vec2 vTexCoord;
 
@@ -185,8 +179,6 @@ void main(void) {
         Matrix4Uniform.make(ctx, program, 'transformationMatrix');
     final bgColorUniform = ColorUniform.make(ctx, program, 'bgColor');
     final textureUniform = TextureUniform.make(ctx, program, 'texture');
-    final textureOpacityUniform =
-        FloatUniform.make(ctx, program, 'textureOpacity');
 
     return BasicObjectRenderer(
       ctx: ctx,
@@ -197,7 +189,6 @@ void main(void) {
       transformationMatrix: transformationMatrixUniform,
       bgColorUniform: bgColorUniform,
       textureUniform: textureUniform,
-      textureOpacity: textureOpacityUniform,
     );
   }
 }
