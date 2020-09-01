@@ -23,29 +23,63 @@ Future<void> main() async {
 
   final objects = <Object2D>[];
 
-  /*{
-    final rect =
-        Object2D.rectangularMesh(renderer, Vertex2(x: 0, y: 0), 250, 250,
-            transformationMatrix: Matrix4.I()
+  {
+    final rect = Object2D.rectangularMesh(renderer, Rectangle(100, 100, 50, 50))
+      ..background = Background(
+          color: Color(g: 1.0, a: 1.0), image: renderer.getTexture('dart'));
+    objects.add(rect);
+  }
 
-              ..scale(x: 1.5, y: 1.5)
-              ..rotateZ(45)
-              ..translate(x: 75, y: 75))
-          ..background = Background(
-              color: Color(r: 1.0, a: 1.0), image: renderer.getTexture('dart'));
+  {
+    final rect = Object2D.rectangularMesh(
+      renderer,
+      Rectangle(100, 100, 50, 50),
+      transformationMatrix: Matrix4.I()
+        ..translate(x: 125, y: 125)
+        ..rotateZ(degToRad(45))
+        ..translate(x: -125, y: -125),
+    )..background = Background(
+        color: Color(r: 1.0, a: 1.0), image: renderer.getTexture('dart'));
+    objects.add(rect);
+  }
+
+  {
+    final rect = Object2D.rectangularMesh(renderer, Rectangle(250, 250, 50, 50))
+      ..background = Background(
+          color: Color(g: 1.0, a: 1.0), image: renderer.getTexture('dart'));
+    objects.add(rect);
+  }
+
+  {
+    final rect = Object2D.rectangularMesh(
+      renderer,
+      Rectangle(250, 250, 50, 50),
+      transform: Transform(rotation: degToRad(45), scale: Point(0.5, 0.5)),
+    )..background = Background(
+        color: Color(r: 1.0, a: 1.0), image: renderer.getTexture('dart'));
+    objects.add(rect);
+  }
+
+  /*
+  {
+    final rect = Object2D.rectangularMesh(
+      renderer,
+      Rectangle(250, 250, 50, 50),
+      transform: Transform(rotation: degToRad(45)/*, scale: Point(0.5, 0.5)*/),
+    )..background = Background(
+        color: Color(r: 1.0, a: 1.0), image: renderer.getTexture('dart'));
     objects.add(rect);
   }*/
 
   {
-    final rect =
-        Object2D.rectangularMesh(renderer, Vertex2(x: 0, y: 0), 250, 250,
-            transformationMatrix: Matrix4.I()
-              ..translate(x: -125, y: -125)
-              ..rotateZ(degToRad(45))
-              ..translate(x: 125, y: 125),
-            )
-          ..background = Background(
-              color: Color(r: 1.0, a: 1.0), image: renderer.getTexture('dart'));
+    final rect = Object2D.rectangularMesh(renderer, Rectangle(100, 100, 50, 50),
+        transformationMatrix: Matrix4.I()
+          // ..translate(x: 25, y: 25)
+          ..rotateZ(degToRad(45))
+        // ..translate(x: -25, y: -25),
+        )
+      ..background = Background(
+          color: Color(b: 1.0, a: 1.0), image: renderer.getTexture('dart'));
     objects.add(rect);
   }
 

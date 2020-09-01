@@ -1,8 +1,6 @@
 import 'dart:typed_data';
 import 'dart:math' as math;
 
-import 'package:lorikeet/src/primitive.dart';
-
 class Matrix4 {
   final _data = Float32List(16);
 
@@ -74,6 +72,11 @@ class Matrix4 {
     return Vertex4(x: _data[i++], y: _data[i++], z: _data[i++], w: _data[i++]);
   }
 
+  Vertex4 col(int c) {
+    return Vertex4(
+        x: _data[0 + c], y: _data[4 + c], z: _data[8 + c], w: _data[12 + c]);
+  }
+
   double get(int row, int col) => _data[row * 4 + col];
   void set(int row, int col, double value) => _data[(row * 4) + col] = value;
 
@@ -134,6 +137,23 @@ class Matrix4 {
     return ret;
   }
 
+  Matrix4 multiply(Matrix4 other) {
+    final ret = Matrix4();
+
+    for (int i = 0; i < 4; i++) {
+      final r = row(i);
+      for (int j = 0; j < 4; j++) {
+        ret.set(i, j, r.dot(other.col(j)));
+      }
+    }
+
+    return ret;
+  }
+
+  void assign(Matrix4 other) {
+    _data.setRange(0, 16, other.items);
+  }
+
   void translate(
       {double x = 0.0, double y = 0.0, double z = 0.0, double w = 1.0}) {
     _data[3] = (cell00 * x) + (cell01 * y) + (cell02 * z) + (cell03 * w);
@@ -144,36 +164,21 @@ class Matrix4 {
 
   void scale({num x = 1, num y = 1, num z = 1}) {
     cell00 *= x;
+    cell01 *= y;
+    cell02 *= z;
+
+    cell10 *= x;
     cell11 *= y;
+    cell12 *= z;
+
+    cell20 *= x;
+    cell21 *= y;
     cell22 *= z;
+
+    cell30 *= x;
+    cell31 *= y;
+    cell32 *= z;
   }
-
-  /*
-  void rotateX(double radians) {
-    final cosTheta = math.cos(radians);
-    final sinTheta = math.sin(radians);
-
-    double cell01Copy = cell01;
-    double cell02Copy = cell02;
-    double cell11Copy = cell11;
-    double cell12Copy = cell12;
-    double cell21Copy = cell21;
-    double cell22Copy = cell22;
-    double cell31Copy = cell31;
-    double cell32Copy = cell32;
-
-    cell01 = cell01Copy * cosTheta + cell02Copy * sinTheta;
-    cell02 = cell01Copy * -sinTheta + cell02Copy * cosTheta;
-
-    cell11 = cell11Copy * cosTheta + cell12Copy * sinTheta;
-    cell12 = cell11Copy * -sinTheta + cell12Copy * cosTheta;
-
-    cell21 = cell21Copy * cosTheta + cell22Copy * sinTheta;
-    cell22 = cell21Copy * -sinTheta + cell22Copy * cosTheta;
-
-    cell31 = cell31Copy * cosTheta + cell32Copy * sinTheta;
-    cell32 = cell31Copy * -sinTheta + cell32Copy * cosTheta;
-  }*/
 
   void rotateZ(double radians) {
     final cosTheta = math.cos(radians);
@@ -238,3 +243,147 @@ class Matrix4 {
 }
 
 double degToRad(num deg) => (deg / 180) * math.pi;
+
+class Vertex2 {
+  num x;
+
+  num y;
+
+  Vertex2({this.x = 0, this.y = 0});
+
+  Vertex4 toVertex4({num z = 0, num w = 1}) => Vertex4(x: x, y: y, z: z, w: w);
+
+  @override
+  String toString() => 'Vertex2($x, $y)';
+}
+
+class Vertex2s {
+  Float32List _data;
+
+  Vertex2s.length(int length) {
+    _data = Float32List(length * 2);
+  }
+
+  int get count => _data.length ~/ 2;
+
+  void operator []=(int index, Vertex2 vertex) {
+    _data[index * 2] = vertex.x;
+    _data[index * 2 + 1] = vertex.y;
+  }
+
+  Vertex2 operator [](int index) {
+    return Vertex2(x: _data[index * 2], y: _data[index * 2 + 1]);
+  }
+
+  void set(Iterable<Vertex2> vertices, [int start = 0]) {
+    for (final v in vertices) {
+      this[start++] = v;
+    }
+  }
+
+  Float32List get asList => _data;
+
+  List<Vertex2> get asVertexList =>
+      List<Vertex2>.generate(count, (index) => this[index]);
+}
+
+class Vertex4 {
+  num x;
+
+  num y;
+
+  num z;
+
+  num w;
+
+  Vertex4({this.x = 0, this.y = 0, this.z = 0, this.w = 0});
+
+  num dot(Vertex4 other) =>
+      x * other.x + y * other.y + z * other.z + w * other.w;
+
+  void operator []=(int index, num value) {
+    switch (index) {
+      case 0:
+        x = value;
+        break;
+      case 1:
+        y = value;
+        break;
+      case 2:
+        z = value;
+        break;
+      case 3:
+        w = value;
+        break;
+      default:
+        throw Exception('invalid index: $index');
+    }
+  }
+
+  @override
+  String toString() => 'Vertex4($x, $y, $z, $w)';
+}
+
+class Color {
+  double r;
+
+  double g;
+
+  double b;
+
+  double a;
+
+  Color({this.r = 0, this.g = 0, this.b = 0, this.a = 0});
+
+  void copyFrom(Color other) {
+    r = other.r;
+    g = other.g;
+    b = other.b;
+    a = other.a;
+  }
+
+  int get rInt => (r * 255).toInt();
+
+  int get gInt => (r * 255).toInt();
+
+  int get bInt => (r * 255).toInt();
+
+  int get aInt => (r * 255).toInt();
+
+  Float32List get asList => Float32List.fromList([r, g, b, a]);
+
+  Uint8List get asIntList => Uint8List.fromList([rInt, gInt, bInt, aInt]);
+}
+
+class Colors {
+  Float32List _data;
+
+  Colors.length(int length) {
+    _data = Float32List(length * 4);
+  }
+
+  int get count => _data.length ~/ 2;
+
+  void operator []=(int index, Color color) {
+    _data[index * 2] = color.r;
+    _data[index * 2 + 1] = color.g;
+    _data[index * 2 + 2] = color.b;
+    _data[index * 2 + 3] = color.a;
+  }
+
+  Color operator [](int index) {
+    return Color(
+        r: _data[index * 2],
+        g: _data[index * 2 + 1],
+        b: _data[index * 2],
+        a: _data[index * 2 + 1]);
+  }
+
+  void set(Iterable<Color> colors, [int start = 0]) {
+    for (final color in colors) {
+      this[start++] = color;
+    }
+  }
+
+  List<Color> get asList => List<Color>.generate(count, (index) => this[index]);
+}

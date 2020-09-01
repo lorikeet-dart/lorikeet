@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:web_gl';
 
 import 'package:lorikeet/src/glutil/attribute.dart';
@@ -9,6 +10,8 @@ import 'package:lorikeet/src/render.dart';
 class Object2D {
   final Renderer renderer;
 
+  final Rectangle rectangle;
+
   int order = 0;
 
   Vertex2s vertices;
@@ -19,7 +22,7 @@ class Object2D {
 
   ObjectRenderer shader;
 
-  Object2D(this.renderer, this.vertices,
+  Object2D(this.renderer, this.rectangle, this.vertices,
       {this.order = 0,
       this.background,
       Matrix4 transformationMatrix,
@@ -29,17 +32,70 @@ class Object2D {
     }
   }
 
+  Rectangle boundingBox() {
+    num minX;
+    num minY;
+    num maxX;
+    num maxY;
+
+    for (final v in vertices.asVertexList) {
+      if (minX == null || v.x < minX) minX = v.x;
+      if (maxX == null || v.x > maxX) maxX = v.x;
+      if (minY == null || v.y < minY) minY = v.y;
+      if (maxY == null || v.y > maxY) maxY = v.y;
+    }
+
+    return Rectangle(minX, minY, maxX - minX, maxY - minY);
+  }
+
   static Object2D rectangularMesh(
-      Renderer renderer, Vertex2 topLeft, num width, num height,
-      {ObjectRenderer shader, Matrix4 transformationMatrix}) {
+    Renderer renderer,
+    Rectangle<num> rectangle, {
+    ObjectRenderer shader,
+    Matrix4 transformationMatrix,
+    Transform transform,
+  }) {
     final vertices = Vertex2s.length(6);
-    vertices[0] = Vertex2(x: topLeft.x, y: topLeft.y);
-    vertices[1] = Vertex2(x: topLeft.x + width, y: topLeft.y);
-    vertices[2] = Vertex2(x: topLeft.x + width, y: topLeft.y + height);
-    vertices[3] = Vertex2(x: topLeft.x, y: topLeft.y);
-    vertices[4] = Vertex2(x: topLeft.x, y: topLeft.y + height);
-    vertices[5] = Vertex2(x: topLeft.x + width, y: topLeft.y + height);
-    return Object2D(renderer, vertices,
+    vertices[0] = Vertex2(x: rectangle.left, y: rectangle.top);
+    vertices[1] =
+        Vertex2(x: rectangle.left + rectangle.width, y: rectangle.top);
+    vertices[2] = Vertex2(
+        x: rectangle.left + rectangle.width,
+        y: rectangle.top + rectangle.height);
+    vertices[3] = Vertex2(x: rectangle.left, y: rectangle.top);
+    vertices[4] =
+        Vertex2(x: rectangle.left, y: rectangle.top + rectangle.height);
+    vertices[5] = Vertex2(
+        x: rectangle.left + rectangle.width,
+        y: rectangle.top + rectangle.height);
+
+    transformationMatrix ??= Matrix4.I();
+    transform ??= Transform();
+
+    if (transform.hasTransform) {
+      num tx = rectangle.left +
+          ((rectangle.width * transform.anchorPointPercent.x) / 100);
+      num ty = rectangle.top +
+          ((rectangle.height * transform.anchorPointPercent.y) / 100);
+      transformationMatrix.translate(x: tx, y: ty);
+
+      if (transform.translate != null) {
+        transformationMatrix.translate(
+            x: transform.translate.x, y: transform.translate.y);
+      }
+
+      if (transform.rotation != null) {
+        transformationMatrix.rotateZ(transform.rotation);
+      }
+
+      if (transform.scale != null) {
+        transformationMatrix.scale(x: transform.scale.x, y: transform.scale.y);
+      }
+
+      transformationMatrix.translate(x: -tx, y: -ty);
+    }
+
+    return Object2D(renderer, rectangle, vertices,
         shader: shader ?? renderer.programs['basic'],
         transformationMatrix: transformationMatrix);
   }
@@ -191,4 +247,20 @@ void main(void) {
       textureUniform: textureUniform,
     );
   }
+}
+
+class Transform {
+  final num rotation;
+  final Point<num> translate;
+  final Point<num> scale;
+  final Point<num> anchorPointPercent;
+
+  Transform(
+      {this.rotation,
+      this.translate,
+      this.scale,
+      this.anchorPointPercent = const Point<num>(50, 50)});
+
+  bool get hasTransform =>
+      rotation != null || translate != null || scale != null;
 }
