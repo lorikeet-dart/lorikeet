@@ -251,7 +251,14 @@ class Vertex2 {
 
   Vertex2({this.x = 0, this.y = 0});
 
+  factory Vertex2.fromPoint(math.Point<num> p) => Vertex2(x: p.x, y: p.y);
+
   Vertex4 toVertex4({num z = 0, num w = 1}) => Vertex4(x: x, y: y, z: z, w: w);
+
+  void divideByPoint(math.Point<num> other) {
+    x /= other.x;
+    y /= other.y;
+  }
 
   @override
   String toString() => 'Vertex2($x, $y)';
