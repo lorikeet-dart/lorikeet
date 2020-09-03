@@ -5,6 +5,7 @@ import 'package:lorikeet/src/matrix.dart';
 import 'package:lorikeet/src/object_renderer.dart';
 import 'package:lorikeet/src/primitive.dart';
 import 'package:lorikeet/src/render.dart';
+import 'package:lorikeet/src/timeline.dart';
 
 Future<void> main() async {
   final CanvasElement canvas = querySelector('#rectangle');
@@ -28,16 +29,13 @@ Future<void> main() async {
     Rectangle(128, 128, 128, 128)
   ];
 
-  final watch = Stopwatch()..start();
+  final watch = Timeline()..start();
 
   void render() {
-    print(watch.elapsed.inSeconds);
-    final seconds = watch.elapsed.inMilliseconds~/50;
+    final seconds = watch.inMilliseconds~/50;
     int frame = seconds % frames.length;
 
     final objects = <Object2D>[];
-
-    print('here');
 
     {
       final rect =
