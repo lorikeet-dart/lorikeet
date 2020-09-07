@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'dart:web_gl';
 import 'matrix.dart';
@@ -7,10 +6,18 @@ import 'matrix.dart';
 export 'matrix.dart';
 
 enum FillType {
-  none,
+  stretch, // Stretches the texture to fill the polygon
   cover,
   contain,
   repeat,
+}
+
+class BackgroundPosition {
+  Point<num> position = Point(0, 0);
+
+  Point<num> anchorPoint = Point(0, 0);
+
+  FillType fillType = FillType.stretch;
 }
 
 class Background {
@@ -18,35 +25,21 @@ class Background {
 
   Tex image;
 
-  Vertex2s texCoords = Vertex2s.length(6);
-
   Rectangle<num> textureRegion;
 
-  Background({Color color, this.image, this.textureRegion}) {
+  BackgroundPosition position;
+
+  Background(
+      {Color color,
+      this.image,
+      this.textureRegion,
+      BackgroundPosition position}) {
     if (color != null) {
       this.color.copyFrom(color);
     }
 
-    if (image == null) {
-      texCoords[0] = Vertex2(x: 0, y: 0);
-      texCoords[1] = Vertex2(x: 1.0, y: 0.0);
-      texCoords[2] = Vertex2(x: 1.0, y: 1.0);
-      texCoords[3] = Vertex2(x: 0.0, y: 0.0);
-      texCoords[4] = Vertex2(x: 0.0, y: 1.0);
-      texCoords[5] = Vertex2(x: 1.0, y: 1.0);
-    } else {
-      final rect = textureRegion ?? Rectangle(0, 0, image.width, image.height);
-
-      texCoords[0] = Vertex2.fromPoint(rect.topLeft)..divideByPoint(image.size);
-      texCoords[1] = Vertex2.fromPoint(rect.topRight)
-        ..divideByPoint(image.size);
-      texCoords[2] = Vertex2.fromPoint(rect.bottomRight)
-        ..divideByPoint(image.size);
-      texCoords[3] = Vertex2.fromPoint(rect.topLeft)..divideByPoint(image.size);
-      texCoords[4] = Vertex2.fromPoint(rect.bottomLeft)
-        ..divideByPoint(image.size);
-      texCoords[5] = Vertex2.fromPoint(rect.bottomRight)
-        ..divideByPoint(image.size);
+    if(position != null) {
+      this.position = position;
     }
   }
 }

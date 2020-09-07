@@ -24,30 +24,30 @@ Future<void> main() async {
   final objects = <Object2D>[];
 
   {
-    final rect = Object2D.rectangularMesh(renderer, Rectangle(10, 10, 250, 250))
-      ..background = Background(
-          color: Color(r: 1.0, a: 1.0), image: renderer.getTexture('dart'));
+    final rect = Object2D.rectangularMesh(renderer, Rectangle(10, 10, 250, 250),
+        background: Background(
+            color: Color(r: 1.0, a: 1.0), image: renderer.getTexture('dart')));
     objects.add(rect);
   }
 
   {
-    final rect =
-        Object2D.rectangularMesh(renderer, Rectangle(200, 200, 250, 250))
-          ..background = Background(color: Color(g: 1.0, a: 0.5));
+    final rect = Object2D.rectangularMesh(
+        renderer, Rectangle(200, 200, 250, 250),
+        background: Background(color: Color(g: 1.0, a: 0.5)));
     objects.add(rect);
   }
 
   {
-    final rect =
-        Object2D.rectangularMesh(renderer, Rectangle(240, 10, 250, 250))
-          ..background = Background(color: Color(a: 0.5));
+    final rect = Object2D.rectangularMesh(
+        renderer, Rectangle(240, 10, 250, 250),
+        background: Background(color: Color(a: 0.5)));
     objects.add(rect);
   }
 
   {
-    final rect =
-        Object2D.rectangularMesh(renderer, Rectangle(10, 240, 250, 250))
-          ..background = Background(color: Color(r: 1, g: 1, b: 1, a: 0.5));
+    final rect = Object2D.rectangularMesh(
+        renderer, Rectangle(10, 240, 250, 250),
+        background: Background(color: Color(r: 1, g: 1, b: 1, a: 0.5)));
     objects.add(rect);
   }
 

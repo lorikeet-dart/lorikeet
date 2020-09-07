@@ -16,7 +16,9 @@ class Object2D {
 
   Vertex2s vertices;
 
-  Background background = Background();
+  final Vertex2s texCoords;
+
+  final Background background;
 
   final transformationMatrix = Matrix4.I();
 
@@ -26,7 +28,8 @@ class Object2D {
       {this.order = 0,
       this.background,
       Matrix4 transformationMatrix,
-      this.shader}) {
+      this.shader,
+      this.texCoords}) {
     if (transformationMatrix != null) {
       this.transformationMatrix.copyFrom(transformationMatrix);
     }
@@ -54,6 +57,7 @@ class Object2D {
     ObjectRenderer shader,
     Matrix4 transformationMatrix,
     Transform transform,
+    Background background,
   }) {
     final vertices = Vertex2s.length(6);
     vertices[0] = Vertex2(x: rectangle.left, y: rectangle.top);
@@ -95,9 +99,37 @@ class Object2D {
       transformationMatrix.translate(x: -tx, y: -ty);
     }
 
+    Vertex2s texCoords = Vertex2s.length(6);
+
+    final image = background.image;
+    if (image == null) {
+      texCoords[0] = Vertex2(x: 0, y: 0);
+      texCoords[1] = Vertex2(x: 1.0, y: 0.0);
+      texCoords[2] = Vertex2(x: 1.0, y: 1.0);
+      texCoords[3] = Vertex2(x: 0.0, y: 0.0);
+      texCoords[4] = Vertex2(x: 0.0, y: 1.0);
+      texCoords[5] = Vertex2(x: 1.0, y: 1.0);
+    } else {
+      final rect = background.textureRegion ??
+          Rectangle(0, 0, image.width, image.height);
+
+      texCoords[0] = Vertex2.fromPoint(rect.topLeft)..divideByPoint(image.size);
+      texCoords[1] = Vertex2.fromPoint(rect.topRight)
+        ..divideByPoint(image.size);
+      texCoords[2] = Vertex2.fromPoint(rect.bottomRight)
+        ..divideByPoint(image.size);
+      texCoords[3] = Vertex2.fromPoint(rect.topLeft)..divideByPoint(image.size);
+      texCoords[4] = Vertex2.fromPoint(rect.bottomLeft)
+        ..divideByPoint(image.size);
+      texCoords[5] = Vertex2.fromPoint(rect.bottomRight)
+        ..divideByPoint(image.size);
+    }
+
     return Object2D(renderer, rectangle, vertices,
         shader: shader ?? renderer.programs['basic'],
-        transformationMatrix: transformationMatrix);
+        transformationMatrix: transformationMatrix,
+        texCoords: texCoords,
+        background: background);
   }
 }
 
@@ -152,7 +184,7 @@ class BasicObjectRenderer implements ObjectRenderer {
 
       textureUniform.setTexture(renderer.noTexture);
     } else {
-      texCoords.set(object.background.texCoords.asList);
+      texCoords.set(object.texCoords.asList);
 
       textureUniform.setTexture(background.image.texture);
     }

@@ -19,17 +19,18 @@ Future<void> main() async {
       clearColor: Color(r: 0.5, g: 0.5, b: 0.5, a: 1.0),
       projectionMatrix: Matrix4.ortho(0, 500, 500, 0, -1000.0, 1000.0));
 
-  await renderer.loadTextureFromUrl('spritesheet', '/static/img/spritesheet.png');
+  await renderer.loadTextureFromUrl(
+      'spritesheet', '/static/img/spritesheet.png');
 
   final objects = <Object2D>[];
 
   {
-    final rect =
-        Object2D.rectangularMesh(renderer, Rectangle(100, 100, 128, 128))
-          ..background = Background(
-              color: Color(r: 0.5, g: 0.5, a: 1),
-              image: renderer.getTexture('spritesheet'),
-              textureRegion: Rectangle(128, 128, 128, 128));
+    final rect = Object2D.rectangularMesh(
+        renderer, Rectangle(100, 100, 128, 128),
+        background: Background(
+            color: Color(r: 0.5, g: 0.5, a: 1),
+            image: renderer.getTexture('spritesheet'),
+            textureRegion: Rectangle(128, 128, 128, 128)));
     objects.add(rect);
   }
 
