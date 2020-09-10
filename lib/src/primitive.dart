@@ -2,22 +2,22 @@ import 'dart:math';
 
 import 'dart:web_gl';
 import 'matrix.dart';
+import 'filltype.dart';
 
 export 'matrix.dart';
-
-enum FillType {
-  stretch, // Stretches the texture to fill the polygon
-  cover,
-  contain,
-  repeat,
-}
+export 'filltype.dart';
 
 class BackgroundPosition {
-  Point<num> position = Point(0, 0);
+  final Point<num> position;
 
-  Point<num> anchorPoint = Point(0, 0);
+  final Point<num> anchorPoint;
 
-  FillType fillType = FillType.stretch;
+  final FillType fillType;
+
+  BackgroundPosition(
+      {this.position = const Point(0, 0),
+      this.anchorPoint = const Point(0, 0),
+      this.fillType = FillType.stretch});
 }
 
 class Background {
@@ -38,9 +38,7 @@ class Background {
       this.color.copyFrom(color);
     }
 
-    if(position != null) {
-      this.position = position;
-    }
+    this.position = position ?? BackgroundPosition();
   }
 }
 

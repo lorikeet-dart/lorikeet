@@ -7,10 +7,12 @@ import 'package:lorikeet/src/matrix.dart';
 import 'package:lorikeet/src/primitive.dart';
 import 'package:lorikeet/src/render.dart';
 
+enum TexMode { CLAMP, REPEAT }
+
 class Object2D {
   final Renderer renderer;
 
-  final Rectangle rectangle;
+  final Rectangle box;
 
   int order = 0;
 
@@ -18,18 +20,21 @@ class Object2D {
 
   final Vertex2s texCoords;
 
+  final TexMode texMode;
+
   final Background background;
 
   final transformationMatrix = Matrix4.I();
 
   ObjectRenderer shader;
 
-  Object2D(this.renderer, this.rectangle, this.vertices,
+  Object2D(this.renderer, this.box, this.vertices,
       {this.order = 0,
       this.background,
       Matrix4 transformationMatrix,
       this.shader,
-      this.texCoords}) {
+      this.texCoords,
+      this.texMode}) {
     if (transformationMatrix != null) {
       this.transformationMatrix.copyFrom(transformationMatrix);
     }
@@ -53,34 +58,26 @@ class Object2D {
 
   static Object2D rectangularMesh(
     Renderer renderer,
-    Rectangle<num> rectangle, {
+    Rectangle<num> box, {
     ObjectRenderer shader,
     Matrix4 transformationMatrix,
     Transform transform,
     Background background,
   }) {
     final vertices = Vertex2s.length(6);
-    vertices[0] = Vertex2(x: rectangle.left, y: rectangle.top);
-    vertices[1] =
-        Vertex2(x: rectangle.left + rectangle.width, y: rectangle.top);
-    vertices[2] = Vertex2(
-        x: rectangle.left + rectangle.width,
-        y: rectangle.top + rectangle.height);
-    vertices[3] = Vertex2(x: rectangle.left, y: rectangle.top);
-    vertices[4] =
-        Vertex2(x: rectangle.left, y: rectangle.top + rectangle.height);
-    vertices[5] = Vertex2(
-        x: rectangle.left + rectangle.width,
-        y: rectangle.top + rectangle.height);
+    vertices[0] = Vertex2(x: box.left, y: box.top);
+    vertices[1] = Vertex2(x: box.left + box.width, y: box.top);
+    vertices[2] = Vertex2(x: box.left + box.width, y: box.top + box.height);
+    vertices[3] = Vertex2(x: box.left, y: box.top);
+    vertices[4] = Vertex2(x: box.left, y: box.top + box.height);
+    vertices[5] = Vertex2(x: box.left + box.width, y: box.top + box.height);
 
     transformationMatrix ??= Matrix4.I();
     transform ??= Transform();
 
     if (transform.hasTransform) {
-      num tx = rectangle.left +
-          ((rectangle.width * transform.anchorPointPercent.x) / 100);
-      num ty = rectangle.top +
-          ((rectangle.height * transform.anchorPointPercent.y) / 100);
+      num tx = box.left + ((box.width * transform.anchorPointPercent.x) / 100);
+      num ty = box.top + ((box.height * transform.anchorPointPercent.y) / 100);
       transformationMatrix.translate(x: tx, y: ty);
 
       if (transform.translate != null) {
@@ -100,36 +97,54 @@ class Object2D {
     }
 
     Vertex2s texCoords = Vertex2s.length(6);
+    TexMode texMode = TexMode.CLAMP;
 
     final image = background.image;
-    if (image == null) {
-      texCoords[0] = Vertex2(x: 0, y: 0);
-      texCoords[1] = Vertex2(x: 1.0, y: 0.0);
-      texCoords[2] = Vertex2(x: 1.0, y: 1.0);
-      texCoords[3] = Vertex2(x: 0.0, y: 0.0);
-      texCoords[4] = Vertex2(x: 0.0, y: 1.0);
-      texCoords[5] = Vertex2(x: 1.0, y: 1.0);
-    } else {
-      final rect = background.textureRegion ??
+    if (image != null) {
+      final tex = background.textureRegion ??
           Rectangle(0, 0, image.width, image.height);
 
-      texCoords[0] = Vertex2.fromPoint(rect.topLeft)..divideByPoint(image.size);
-      texCoords[1] = Vertex2.fromPoint(rect.topRight)
-        ..divideByPoint(image.size);
-      texCoords[2] = Vertex2.fromPoint(rect.bottomRight)
-        ..divideByPoint(image.size);
-      texCoords[3] = Vertex2.fromPoint(rect.topLeft)..divideByPoint(image.size);
-      texCoords[4] = Vertex2.fromPoint(rect.bottomLeft)
-        ..divideByPoint(image.size);
-      texCoords[5] = Vertex2.fromPoint(rect.bottomRight)
-        ..divideByPoint(image.size);
+      Point<num> result;
+
+      if (background.position.fillType == FillType.stretch) {
+        result = Point<num>(1, 1);
+      } else if (background.position.fillType == FillType.contain) {
+        result = computeContain(box.size, tex.size);
+      } else if (background.position.fillType == FillType.cover) {
+        result = computeCover(box.size, tex.size);
+      } else if (background.position.fillType == FillType.repeat) {
+        // TODO
+      }
+
+      texCoords[0] = Vertex2(x: 0, y: 0);
+      texCoords[1] = Vertex2(x: result.width, y: 0.0);
+      texCoords[2] = Vertex2(x: result.width, y: result.height);
+      texCoords[3] = Vertex2(x: 0.0, y: 0.0);
+      texCoords[4] = Vertex2(x: 0.0, y: result.height);
+      texCoords[5] = Vertex2(x: result.width, y: result.height);
     }
 
-    return Object2D(renderer, rectangle, vertices,
+    /* spritesheet
+        texCoords[0] = Vertex2.fromPoint(rect.topLeft)
+          ..divideByPoint(image.size);
+        texCoords[1] = Vertex2.fromPoint(rect.topRight)
+          ..divideByPoint(image.size);
+        texCoords[2] = Vertex2.fromPoint(rect.bottomRight)
+          ..divideByPoint(image.size);
+        texCoords[3] = Vertex2.fromPoint(rect.topLeft)
+          ..divideByPoint(image.size);
+        texCoords[4] = Vertex2.fromPoint(rect.bottomLeft)
+          ..divideByPoint(image.size);
+        texCoords[5] = Vertex2.fromPoint(rect.bottomRight)
+          ..divideByPoint(image.size);
+         */
+
+    return Object2D(renderer, box, vertices,
         shader: shader ?? renderer.programs['basic'],
         transformationMatrix: transformationMatrix,
         texCoords: texCoords,
-        background: background);
+        background: background,
+        texMode: texMode);
   }
 }
 
@@ -182,11 +197,13 @@ class BasicObjectRenderer implements ObjectRenderer {
     if (background.image == null) {
       texCoords.setVertex2(Vertex2());
 
-      textureUniform.setTexture(renderer.noTexture);
+      textureUniform.setTexture(
+          WebGL.TEXTURE0, renderer.noTexture, TexMode.REPEAT);
     } else {
       texCoords.set(object.texCoords.asList);
 
-      textureUniform.setTexture(background.image.texture);
+      textureUniform.setTexture(
+          WebGL.TEXTURE0, background.image.texture, object.texMode);
     }
 
     ctx.drawArrays(WebGL.TRIANGLES, 0, numVertices);

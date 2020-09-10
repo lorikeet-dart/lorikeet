@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'dart:web_gl';
 
 import 'package:lorikeet/src/matrix.dart';
+import 'package:lorikeet/src/object_renderer.dart';
 import 'package:lorikeet/src/primitive.dart';
 
 abstract class UniformInfo {
@@ -79,10 +80,19 @@ class TextureUniform implements UniformInfo {
 
   TextureUniform({this.ctx, this.location});
 
-  void setTexture(Texture texture) {
-    ctx.activeTexture(WebGL.TEXTURE0);
+  void setTexture(int textureUnit, Texture texture, TexMode mode) {
+    ctx.activeTexture(textureUnit);
     ctx.bindTexture(WebGL.TEXTURE_2D, texture);
 
+    if (mode == TexMode.CLAMP) {
+      ctx.texParameteri(
+          WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_S, WebGL.CLAMP_TO_EDGE);
+      ctx.texParameteri(
+          WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_T, WebGL.CLAMP_TO_EDGE);
+    } else if (mode == TexMode.REPEAT) {
+      ctx.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_S, WebGL.REPEAT);
+      ctx.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_T, WebGL.REPEAT);
+    }
     ctx.uniform1i(location, 0);
   }
 
