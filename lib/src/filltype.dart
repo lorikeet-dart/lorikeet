@@ -1,6 +1,7 @@
 import 'dart:html';
 
 enum FillType {
+  normal,
   stretch, // Stretches the texture to fill the polygon
   cover,
   contain,
@@ -14,6 +15,10 @@ extension PointSize on Point<num> {
 
 extension RectangleSize on Rectangle<num> {
   Point<num> get size => Point<num>(width, height);
+}
+
+Point<num> computeNormal(Point<num> box, Point<num> tex) {
+  return Point<num>(box.width/tex.width, box.height/tex.height);
 }
 
 Point<num> computeContain(Point<num> box, Point<num> tex) {
@@ -86,4 +91,8 @@ Point<num> computeCover(Point<num> box, Point<num> tex) {
   }
 
   return Point<num>(width, height);
+}
+
+Point<num> computeRepeat(Point<num> box, Point<num> tex) {
+  return Point<num>(box.width/tex.width, box.height/tex.height);
 }

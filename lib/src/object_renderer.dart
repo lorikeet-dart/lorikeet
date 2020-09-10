@@ -106,14 +106,17 @@ class Object2D {
 
       Point<num> result;
 
-      if (background.position.fillType == FillType.stretch) {
+      if (background.position.fillType == FillType.normal) {
+        result = computeNormal(box.size, tex.size);
+      } else if (background.position.fillType == FillType.stretch) {
         result = Point<num>(1, 1);
       } else if (background.position.fillType == FillType.contain) {
         result = computeContain(box.size, tex.size);
       } else if (background.position.fillType == FillType.cover) {
         result = computeCover(box.size, tex.size);
       } else if (background.position.fillType == FillType.repeat) {
-        // TODO
+        result = computeRepeat(box.size, tex.size);
+        texMode = TexMode.REPEAT;
       }
 
       texCoords[0] = Vertex2(x: 0, y: 0);

@@ -17,7 +17,7 @@ class BackgroundPosition {
   BackgroundPosition(
       {this.position = const Point(0, 0),
       this.anchorPoint = const Point(0, 0),
-      this.fillType = FillType.stretch});
+      this.fillType = FillType.normal});
 }
 
 class Background {
