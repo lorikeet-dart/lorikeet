@@ -7,39 +7,37 @@ import 'filltype.dart';
 export 'matrix.dart';
 export 'filltype.dart';
 
-class BackgroundPosition {
+class ImageProperties {
+  final Tex image;
+
+  final Rectangle<num> textureRegion;
+
   final Point<num> position;
 
   final Point<num> anchorPoint;
 
   final FillType fillType;
 
-  BackgroundPosition(
-      {this.position = const Point(0, 0),
+  final Point<num> size;
+
+  ImageProperties(this.image,
+      {this.textureRegion,
+      this.position = const Point(0, 0),
       this.anchorPoint = const Point(0, 0),
-      this.fillType = FillType.normal});
+      this.fillType = FillType.normal,
+      this.size = const Point<num>(100, 100)}) {
+    if (image != null) {
+      throw Exception('image cannot be null');
+    }
+  }
 }
 
 class Background {
-  final color = Color();
+  final Color color;
 
-  Tex image;
+  final ImageProperties image;
 
-  Rectangle<num> textureRegion;
-
-  BackgroundPosition position;
-
-  Background(
-      {Color color,
-      this.image,
-      this.textureRegion,
-      BackgroundPosition position}) {
-    if (color != null) {
-      this.color.copyFrom(color);
-    }
-
-    this.position = position ?? BackgroundPosition();
-  }
+  Background({Color color, this.image}) : color = color ?? Color();
 }
 
 class Tex {

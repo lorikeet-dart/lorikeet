@@ -27,8 +27,8 @@ Future<void> main() async {
     final rect = Object2D.rectangularMesh(renderer, Rectangle(50, 50, 350, 350),
         background: Background(
             color: Color(r: 1.0, a: 1.0),
-            image: renderer.getTexture('dart'),
-            position: BackgroundPosition(fillType: FillType.contain)));
+            image: ImageProperties(renderer.getTexture('dart'),
+                fillType: FillType.contain)));
     objects.add(rect);
   }
 
@@ -37,8 +37,8 @@ Future<void> main() async {
         renderer, Rectangle(50, 550, 150, 350),
         background: Background(
             color: Color(r: 1.0, a: 1.0),
-            image: renderer.getTexture('dart'),
-            position: BackgroundPosition(fillType: FillType.contain)));
+            image: ImageProperties(renderer.getTexture('dart'),
+                fillType: FillType.contain)));
     objects.add(rect);
   }
 
@@ -47,8 +47,8 @@ Future<void> main() async {
         renderer, Rectangle(550, 50, 350, 150),
         background: Background(
             color: Color(r: 1.0, a: 1.0),
-            image: renderer.getTexture('dart'),
-            position: BackgroundPosition(fillType: FillType.contain)));
+            image: ImageProperties(renderer.getTexture('dart'),
+                fillType: FillType.contain)));
     objects.add(rect);
   }
 
@@ -57,8 +57,8 @@ Future<void> main() async {
         renderer, Rectangle(550, 550, 150, 100),
         background: Background(
             color: Color(r: 1.0, a: 1.0),
-            image: renderer.getTexture('dart'),
-            position: BackgroundPosition(fillType: FillType.contain)));
+            image: ImageProperties(renderer.getTexture('dart'),
+                fillType: FillType.contain)));
     objects.add(rect);
   }
 

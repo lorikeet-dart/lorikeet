@@ -27,8 +27,8 @@ Future<void> main() async {
     final rect = Object2D.rectangularMesh(renderer, Rectangle(50, 50, 400, 400),
         background: Background(
             color: Color(r: 1.0, a: 1.0),
-            image: renderer.getTexture('dart'),
-            position: BackgroundPosition(fillType: FillType.repeat)));
+            image: ImageProperties(renderer.getTexture('dart'),
+                fillType: FillType.repeat)));
     objects.add(rect);
   }
 

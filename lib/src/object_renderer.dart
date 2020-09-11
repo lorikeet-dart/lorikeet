@@ -101,21 +101,23 @@ class Object2D {
 
     final image = background.image;
     if (image != null) {
-      final tex = background.textureRegion ??
-          Rectangle(0, 0, image.width, image.height);
+      final tex =
+          image.textureRegion ?? Rectangle.fromPoints(Point(0, 0), image.size);
 
+      Point<num> texSize = Point(tex.width * image.size.x / 100,
+          tex.height * image.size.y / 100);
       Point<num> result;
 
-      if (background.position.fillType == FillType.normal) {
-        result = computeNormal(box.size, tex.size);
-      } else if (background.position.fillType == FillType.stretch) {
+      if (image.fillType == FillType.normal) {
+        result = computeNormal(box.size, texSize);
+      } else if (image.fillType == FillType.stretch) {
         result = Point<num>(1, 1);
-      } else if (background.position.fillType == FillType.contain) {
-        result = computeContain(box.size, tex.size);
-      } else if (background.position.fillType == FillType.cover) {
-        result = computeCover(box.size, tex.size);
-      } else if (background.position.fillType == FillType.repeat) {
-        result = computeRepeat(box.size, tex.size);
+      } else if (image.fillType == FillType.contain) {
+        result = computeContain(box.size, texSize);
+      } else if (image.fillType == FillType.cover) {
+        result = computeCover(box.size, texSize);
+      } else if (image.fillType == FillType.repeat) {
+        result = computeRepeat(box.size, texSize);
         texMode = TexMode.REPEAT;
       }
 
@@ -128,17 +130,17 @@ class Object2D {
     }
 
     /* spritesheet
-        texCoords[0] = Vertex2.fromPoint(rect.topLeft)
+        texCoords[0] = Vertex2.fromPoint(tex.topLeft)
           ..divideByPoint(image.size);
-        texCoords[1] = Vertex2.fromPoint(rect.topRight)
+        texCoords[1] = Vertex2.fromPoint(tex.topRight)
           ..divideByPoint(image.size);
-        texCoords[2] = Vertex2.fromPoint(rect.bottomRight)
+        texCoords[2] = Vertex2.fromPoint(tex.bottomRight)
           ..divideByPoint(image.size);
-        texCoords[3] = Vertex2.fromPoint(rect.topLeft)
+        texCoords[3] = Vertex2.fromPoint(tex.topLeft)
           ..divideByPoint(image.size);
-        texCoords[4] = Vertex2.fromPoint(rect.bottomLeft)
+        texCoords[4] = Vertex2.fromPoint(tex.bottomLeft)
           ..divideByPoint(image.size);
-        texCoords[5] = Vertex2.fromPoint(rect.bottomRight)
+        texCoords[5] = Vertex2.fromPoint(tex.bottomRight)
           ..divideByPoint(image.size);
          */
 
@@ -206,7 +208,7 @@ class BasicObjectRenderer implements ObjectRenderer {
       texCoords.set(object.texCoords.asList);
 
       textureUniform.setTexture(
-          WebGL.TEXTURE0, background.image.texture, object.texMode);
+          WebGL.TEXTURE0, background.image.image.texture, object.texMode);
     }
 
     ctx.drawArrays(WebGL.TRIANGLES, 0, numVertices);

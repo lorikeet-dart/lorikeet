@@ -26,7 +26,8 @@ Future<void> main() async {
   {
     final rect = Object2D.rectangularMesh(renderer, Rectangle(100, 100, 50, 50),
         background: Background(
-            color: Color(g: 1.0, a: 1.0), image: renderer.getTexture('dart')));
+            color: Color(g: 1.0, a: 1.0),
+            image: ImageProperties(renderer.getTexture('dart'))));
     objects.add(rect);
   }
 
@@ -37,14 +38,16 @@ Future<void> main() async {
           ..rotateZ(degToRad(45))
           ..translate(x: -125, y: -125),
         background: Background(
-            color: Color(r: 1.0, a: 1.0), image: renderer.getTexture('dart')));
+            color: Color(r: 1.0, a: 1.0),
+            image: ImageProperties(renderer.getTexture('dart'))));
     objects.add(rect);
   }
 
   {
     final rect = Object2D.rectangularMesh(renderer, Rectangle(250, 250, 50, 50),
         background: Background(
-            color: Color(g: 1.0, a: 1.0), image: renderer.getTexture('dart')));
+            color: Color(g: 1.0, a: 1.0),
+            image: ImageProperties(renderer.getTexture('dart'))));
     objects.add(rect);
   }
 
@@ -52,7 +55,8 @@ Future<void> main() async {
     final rect = Object2D.rectangularMesh(renderer, Rectangle(250, 250, 50, 50),
         transform: Transform(rotation: degToRad(45), scale: Point(0.5, 0.5)),
         background: Background(
-            color: Color(r: 1.0, a: 1.0), image: renderer.getTexture('dart')));
+            color: Color(r: 1.0, a: 1.0),
+            image: ImageProperties(renderer.getTexture('dart'))));
     objects.add(rect);
   }
 
@@ -75,7 +79,8 @@ Future<void> main() async {
         // ..translate(x: -25, y: -25),
         ,
         background: Background(
-            color: Color(b: 1.0, a: 1.0), image: renderer.getTexture('dart')));
+            color: Color(b: 1.0, a: 1.0),
+            image: ImageProperties(renderer.getTexture('dart'))));
     objects.add(rect);
   }
 

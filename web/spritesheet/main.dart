@@ -29,8 +29,8 @@ Future<void> main() async {
         renderer, Rectangle(100, 100, 128, 128),
         background: Background(
             color: Color(r: 0.5, g: 0.5, a: 1),
-            image: renderer.getTexture('spritesheet'),
-            textureRegion: Rectangle(128, 128, 128, 128)));
+            image: ImageProperties(renderer.getTexture('spritesheet'),
+                textureRegion: Rectangle(128, 128, 128, 128))));
     objects.add(rect);
   }
 
