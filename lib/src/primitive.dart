@@ -26,7 +26,7 @@ class ImageProperties {
       this.anchorPoint = const Point(0, 0),
       this.fillType = FillType.normal,
       this.size = const Point<num>(100, 100)}) {
-    if (image != null) {
+    if (image == null) {
       throw Exception('image cannot be null');
     }
   }

@@ -1,5 +1,3 @@
-import 'package:image/image.dart';
-
 class Timeline {
   Duration _duration = Duration();
 
