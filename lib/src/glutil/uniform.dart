@@ -71,6 +71,17 @@ class Matrix4Uniform implements UniformInfo {
   }
 }
 
+/// Holds information about index and address of texture unit
+class TextureIndex {
+  final int index;
+
+  final int pointer;
+
+  const TextureIndex(this.index, this.pointer);
+
+  static const texture0 = TextureIndex(0, WebGL.TEXTURE0);
+}
+
 class TextureUniform implements UniformInfo {
   @override
   final RenderingContext2 ctx;
@@ -80,10 +91,16 @@ class TextureUniform implements UniformInfo {
 
   TextureUniform({this.ctx, this.location});
 
-  void setTexture(int textureUnit, Texture texture, TexMode mode) {
-    ctx.activeTexture(textureUnit);
+  void setTexture(TextureIndex textureIndex, Texture texture, TexMode mode) {
+    ctx.activeTexture(textureIndex.pointer);
     ctx.bindTexture(WebGL.TEXTURE_2D, texture);
 
+    ctx.texParameteri(
+        WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_S, WebGL.CLAMP_TO_EDGE);
+    ctx.texParameteri(
+        WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_T, WebGL.CLAMP_TO_EDGE);
+
+    /*
     if (mode == TexMode.CLAMP) {
       ctx.texParameteri(
           WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_S, WebGL.CLAMP_TO_EDGE);
@@ -93,13 +110,54 @@ class TextureUniform implements UniformInfo {
       ctx.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_S, WebGL.REPEAT);
       ctx.texParameteri(WebGL.TEXTURE_2D, WebGL.TEXTURE_WRAP_T, WebGL.REPEAT);
     }
-    ctx.uniform1i(location, 0);
+     */
+    ctx.uniform1i(location, textureIndex.index);
   }
 
   static TextureUniform make(
       RenderingContext2 ctx, Program program, String uniformName) {
     final location = ctx.getUniformLocation(program, uniformName);
     return TextureUniform(ctx: ctx, location: location);
+  }
+}
+
+class Vertex2Uniform implements UniformInfo {
+  @override
+  final RenderingContext2 ctx;
+
+  @override
+  final UniformLocation location;
+
+  Vertex2Uniform({this.ctx, this.location});
+
+  void setData(Vertex2 data) {
+    ctx.uniform2f(location, data.x, data.y);
+  }
+
+  static Vertex2Uniform make(
+      RenderingContext2 ctx, Program program, String uniformName) {
+    final location = ctx.getUniformLocation(program, uniformName);
+    return Vertex2Uniform(ctx: ctx, location: location);
+  }
+}
+
+class BoolUniform implements UniformInfo {
+  @override
+  final RenderingContext2 ctx;
+
+  @override
+  final UniformLocation location;
+
+  BoolUniform({this.ctx, this.location});
+
+  void setData(bool data) {
+    ctx.uniform1i(location, data ? 1 : 0);
+  }
+
+  static BoolUniform make(
+      RenderingContext2 ctx, Program program, String uniformName) {
+    final location = ctx.getUniformLocation(program, uniformName);
+    return BoolUniform(ctx: ctx, location: location);
   }
 }
 

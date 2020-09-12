@@ -203,12 +203,12 @@ class BasicObjectRenderer implements ObjectRenderer {
       texCoords.setVertex2(Vertex2());
 
       textureUniform.setTexture(
-          WebGL.TEXTURE0, renderer.noTexture, TexMode.REPEAT);
+          TextureIndex.texture0, renderer.noTexture, TexMode.REPEAT);
     } else {
       texCoords.set(object.texCoords.asList);
 
-      textureUniform.setTexture(
-          WebGL.TEXTURE0, background.image.texture.texture, object.texMode);
+      textureUniform.setTexture(TextureIndex.texture0,
+          background.image.texture.texture, object.texMode);
     }
 
     ctx.drawArrays(WebGL.TRIANGLES, 0, numVertices);
@@ -234,6 +234,9 @@ precision mediump float;
   
 uniform vec4 bgColor;
 uniform sampler2D texture;
+uniform vec2 texRegionTopLeft;
+uniform vec2 texRegionBottomRight;
+uniform bool repeatTexture;
 
 varying vec2 vTexCoord;
 
@@ -274,14 +277,14 @@ void main(void) {
       throw Exception('Compiling program failed: $msg');
     }
 
-    final vertexAttrbiute =
+    final positionAttribute =
         AttributeInfo.makeArrayBuffer(ctx, program, 'vertex');
     ctx.vertexAttribPointer(
-        vertexAttrbiute.location, 2, WebGL.FLOAT, false, 0, 0);
-    final texCoordsAttrbiute =
+        positionAttribute.location, 2, WebGL.FLOAT, false, 0, 0);
+    final texCoordsAttribute =
         AttributeInfo.makeArrayBuffer(ctx, program, 'texCoord');
     ctx.vertexAttribPointer(
-        texCoordsAttrbiute.location, 2, WebGL.FLOAT, false, 0, 0);
+        texCoordsAttribute.location, 2, WebGL.FLOAT, false, 0, 0);
 
     final projectionMatrixUniform =
         Matrix4Uniform.make(ctx, program, 'projectionMatrix');
@@ -293,8 +296,8 @@ void main(void) {
     return BasicObjectRenderer(
       ctx: ctx,
       program: program,
-      position: vertexAttrbiute,
-      texCoords: texCoordsAttrbiute,
+      position: positionAttribute,
+      texCoords: texCoordsAttribute,
       projectionMatrix: projectionMatrixUniform,
       transformationMatrix: transformationMatrixUniform,
       bgColorUniform: bgColorUniform,
