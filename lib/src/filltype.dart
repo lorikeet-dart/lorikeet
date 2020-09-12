@@ -1,20 +1,13 @@
 import 'dart:html';
 
+import 'package:lorikeet/src/primitive.dart';
+
 enum FillType {
   normal,
   stretch, // Stretches the texture to fill the polygon
   cover,
   contain,
   repeat,
-}
-
-extension PointSize on Point<num> {
-  num get width => x;
-  num get height => y;
-}
-
-extension RectangleSize on Rectangle<num> {
-  Point<num> get size => Point<num>(width, height);
 }
 
 Point<num> computeNormal(Point<num> box, Point<num> tex) {

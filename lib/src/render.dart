@@ -6,7 +6,7 @@ import 'package:lorikeet/src/matrix.dart';
 import 'package:lorikeet/src/object_renderer.dart';
 import 'package:lorikeet/src/primitive.dart';
 
-import 'package:image/image.dart' as imageTools;
+import 'package:image/image.dart' as image_tools;
 import 'package:http/http.dart';
 
 class Renderer {
@@ -70,7 +70,7 @@ class Renderer {
     }
 
     final data = resp.bodyBytes;
-    final decoder = imageTools.findDecoderForData(data);
+    final decoder = image_tools.findDecoderForData(data);
     if (decoder == null) {
       throw Exception('error finding decoder for image');
     }

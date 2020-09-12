@@ -26,15 +26,22 @@ class Object2D {
 
   final transformationMatrix = Matrix4.I();
 
+  final Rectangle<num> textureRegion;
+
   ObjectRenderer shader;
 
-  Object2D(this.renderer, this.box, this.vertices,
-      {this.order = 0,
-      this.background,
-      Matrix4 transformationMatrix,
-      this.shader,
-      this.texCoords,
-      this.texMode}) {
+  Object2D(
+    this.renderer,
+    this.box,
+    this.vertices, {
+    this.order = 0,
+    this.background,
+    Matrix4 transformationMatrix,
+    this.shader,
+    this.texCoords,
+    this.texMode,
+    this.textureRegion,
+  }) {
     if (transformationMatrix != null) {
       this.transformationMatrix.copyFrom(transformationMatrix);
     }
@@ -99,6 +106,8 @@ class Object2D {
     Vertex2s texCoords = Vertex2s.length(6);
     TexMode texMode = TexMode.CLAMP;
 
+    Rectangle<num> textureRegion = Rectangle<num>(0, 0, 1.0, 1.0);
+
     final image = background.image;
     if (image != null) {
       final tex = image.textureRegion ??
@@ -127,29 +136,17 @@ class Object2D {
       texCoords[3] = Vertex2(x: 0.0, y: 0.0);
       texCoords[4] = Vertex2(x: 0.0, y: result.height);
       texCoords[5] = Vertex2(x: result.width, y: result.height);
-    }
 
-    /* spritesheet
-        texCoords[0] = Vertex2.fromPoint(tex.topLeft)
-          ..divideByPoint(image.size);
-        texCoords[1] = Vertex2.fromPoint(tex.topRight)
-          ..divideByPoint(image.size);
-        texCoords[2] = Vertex2.fromPoint(tex.bottomRight)
-          ..divideByPoint(image.size);
-        texCoords[3] = Vertex2.fromPoint(tex.topLeft)
-          ..divideByPoint(image.size);
-        texCoords[4] = Vertex2.fromPoint(tex.bottomLeft)
-          ..divideByPoint(image.size);
-        texCoords[5] = Vertex2.fromPoint(tex.bottomRight)
-          ..divideByPoint(image.size);
-         */
+      textureRegion = tex.divide(image.texture.size);
+    }
 
     return Object2D(renderer, box, vertices,
         shader: shader ?? renderer.programs['basic'],
         transformationMatrix: transformationMatrix,
         texCoords: texCoords,
         background: background,
-        texMode: texMode);
+        texMode: texMode,
+        textureRegion: textureRegion);
   }
 }
 
@@ -176,6 +173,10 @@ class BasicObjectRenderer implements ObjectRenderer {
 
   final BoolUniform repeatTexture;
 
+  final Vertex2Uniform texRegionTopLeft;
+
+  final Vertex2Uniform texRegionSize;
+
   BasicObjectRenderer({
     this.ctx,
     this.program,
@@ -186,6 +187,8 @@ class BasicObjectRenderer implements ObjectRenderer {
     this.bgColorUniform,
     this.textureUniform,
     this.repeatTexture,
+    this.texRegionTopLeft,
+    this.texRegionSize,
   });
 
   @override
@@ -213,6 +216,8 @@ class BasicObjectRenderer implements ObjectRenderer {
       texCoords.set(object.texCoords.asList);
 
       repeatTexture.setData(object.texMode == TexMode.REPEAT);
+      texRegionTopLeft.setData(object.textureRegion.topLeft.toVertex2);
+      texRegionSize.setData(object.textureRegion.size.toVertex2);
 
       textureUniform.setTexture(TextureIndex.texture0,
           background.image.texture.texture, TexMode.CLAMP);
@@ -242,7 +247,7 @@ precision mediump float;
 uniform vec4 bgColor;
 uniform sampler2D texture;
 uniform vec2 texRegionTopLeft;
-uniform vec2 texRegionBottomRight;
+uniform vec2 texRegionSize;
 uniform bool repeatTexture;
 
 varying vec2 vTexCoord;
@@ -250,7 +255,15 @@ varying vec2 vTexCoord;
 void main(void) {
   vec2 texCoord = vTexCoord;
   if(repeatTexture) {
-    texCoord = vec2(fract(vTexCoord.x), fract(vTexCoord.y));
+    texCoord = vec2((fract(vTexCoord.x) * texRegionSize.x) + texRegionTopLeft.x, 
+      (fract(vTexCoord.y) * texRegionSize.y) + texRegionTopLeft.y);
+  } else {
+    if(vTexCoord.x >= 0.0 && vTexCoord.x <= 1.0) {
+      texCoord.x = (fract(vTexCoord.x) * texRegionSize.x) + texRegionTopLeft.x;
+    }
+    if(vTexCoord.y >= 0.0 && vTexCoord.y <= 1.0) {
+      texCoord.y = (fract(vTexCoord.y) * texRegionSize.y) + texRegionTopLeft.y;
+    }
   }
 
   vec4 texColor = texture2D(texture, texCoord);
@@ -306,6 +319,10 @@ void main(void) {
     final textureUniform = TextureUniform.make(ctx, program, 'texture');
     final repeatTextureUniform =
         BoolUniform.make(ctx, program, 'repeatTexture');
+    final texRegionTopLeftUniform =
+        Vertex2Uniform.make(ctx, program, 'texRegionTopLeft');
+    final texRegionSizeUniform =
+        Vertex2Uniform.make(ctx, program, 'texRegionSize');
 
     return BasicObjectRenderer(
       ctx: ctx,
@@ -317,6 +334,8 @@ void main(void) {
       bgColorUniform: bgColorUniform,
       textureUniform: textureUniform,
       repeatTexture: repeatTextureUniform,
+      texRegionTopLeft: texRegionTopLeftUniform,
+      texRegionSize: texRegionSizeUniform,
     );
   }
 }

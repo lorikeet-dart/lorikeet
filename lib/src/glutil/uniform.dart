@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'dart:web_gl';
 
 import 'package:lorikeet/src/matrix.dart';

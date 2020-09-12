@@ -18,7 +18,7 @@ Future<void> main() async {
 
   {
     final rect = Object2D.rectangularMesh(
-        renderer, Rectangle(100, 100, 128, 128),
+        renderer, Rectangle(10, 10, 128, 128),
         background: Background(
             color: Color(r: 0.5, g: 0.5, a: 1),
             image: ImageProperties(renderer.getTexture('spritesheet'),
