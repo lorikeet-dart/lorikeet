@@ -174,6 +174,8 @@ class BasicObjectRenderer implements ObjectRenderer {
 
   final TextureUniform textureUniform;
 
+  final BoolUniform repeatTexture;
+
   BasicObjectRenderer({
     this.ctx,
     this.program,
@@ -183,6 +185,7 @@ class BasicObjectRenderer implements ObjectRenderer {
     this.projectionMatrix,
     this.bgColorUniform,
     this.textureUniform,
+    this.repeatTexture,
   });
 
   @override
@@ -202,13 +205,17 @@ class BasicObjectRenderer implements ObjectRenderer {
     if (background.image == null) {
       texCoords.setVertex2(Vertex2());
 
+      repeatTexture.setData(false);
+
       textureUniform.setTexture(
-          TextureIndex.texture0, renderer.noTexture, TexMode.REPEAT);
+          TextureIndex.texture0, renderer.noTexture, TexMode.CLAMP);
     } else {
       texCoords.set(object.texCoords.asList);
 
+      repeatTexture.setData(object.texMode == TexMode.REPEAT);
+
       textureUniform.setTexture(TextureIndex.texture0,
-          background.image.texture.texture, object.texMode);
+          background.image.texture.texture, TexMode.CLAMP);
     }
 
     ctx.drawArrays(WebGL.TRIANGLES, 0, numVertices);
@@ -241,7 +248,12 @@ uniform bool repeatTexture;
 varying vec2 vTexCoord;
 
 void main(void) {
-  vec4 texColor = texture2D(texture, vTexCoord);
+  vec2 texCoord = vTexCoord;
+  if(repeatTexture) {
+    texCoord = vec2(fract(vTexCoord.x), fract(vTexCoord.y));
+  }
+
+  vec4 texColor = texture2D(texture, texCoord);
   gl_FragColor = bgColor * (1.0 - texColor.w) + texColor * texColor.w;
 }
   ''';
@@ -292,6 +304,8 @@ void main(void) {
         Matrix4Uniform.make(ctx, program, 'transformationMatrix');
     final bgColorUniform = ColorUniform.make(ctx, program, 'bgColor');
     final textureUniform = TextureUniform.make(ctx, program, 'texture');
+    final repeatTextureUniform =
+        BoolUniform.make(ctx, program, 'repeatTexture');
 
     return BasicObjectRenderer(
       ctx: ctx,
@@ -302,6 +316,7 @@ void main(void) {
       transformationMatrix: transformationMatrixUniform,
       bgColorUniform: bgColorUniform,
       textureUniform: textureUniform,
+      repeatTexture: repeatTextureUniform,
     );
   }
 }
