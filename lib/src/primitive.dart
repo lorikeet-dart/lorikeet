@@ -8,7 +8,7 @@ export 'matrix.dart';
 export 'filltype.dart';
 
 class ImageProperties {
-  final Tex image;
+  final Tex texture;
 
   final Rectangle<num> textureRegion;
 
@@ -20,13 +20,13 @@ class ImageProperties {
 
   final Point<num> size;
 
-  ImageProperties(this.image,
+  ImageProperties(this.texture,
       {this.textureRegion,
       this.position = const Point(0, 0),
       this.anchorPoint = const Point(0, 0),
       this.fillType = FillType.normal,
       this.size = const Point<num>(100, 100)}) {
-    if (image == null) {
+    if (texture == null) {
       throw Exception('image cannot be null');
     }
   }

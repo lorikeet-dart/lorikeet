@@ -18,7 +18,7 @@ extension RectangleSize on Rectangle<num> {
 }
 
 Point<num> computeNormal(Point<num> box, Point<num> tex) {
-  return Point<num>(box.width/tex.width, box.height/tex.height);
+  return Point<num>(box.width / tex.width, box.height / tex.height);
 }
 
 Point<num> computeContain(Point<num> box, Point<num> tex) {
@@ -94,5 +94,5 @@ Point<num> computeCover(Point<num> box, Point<num> tex) {
 }
 
 Point<num> computeRepeat(Point<num> box, Point<num> tex) {
-  return Point<num>(box.width/tex.width, box.height/tex.height);
+  return Point<num>(box.width / tex.width, box.height / tex.height);
 }

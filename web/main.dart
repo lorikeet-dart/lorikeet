@@ -1,5 +1,4 @@
 import 'dart:html';
-import 'dart:web_gl';
 
 import 'package:lorikeet/src/matrix.dart';
 import 'package:lorikeet/src/object_renderer.dart';
@@ -8,16 +7,9 @@ import 'package:lorikeet/src/render.dart';
 
 Future<void> main() async {
   final CanvasElement canvas = querySelector('#rectangle');
-  canvas.width = 500;
-  canvas.height = 500;
-  final RenderingContext2 ctx = canvas.getContext('webgl2', {
-    'premultipliedAlpha': false // Ask for non-premultiplied alpha
-  });
-  ctx.viewport(0, 0, 500, 500);
 
-  final renderer = Renderer.makeRenderer(ctx,
-      clearColor: Color(r: 0.5, g: 0.5, b: 0.5, a: 1.0),
-      projectionMatrix: Matrix4.ortho(0, 500, 500, 0, -1000.0, 1000.0));
+  final renderer = Renderer.makeRenderer(canvas,
+      clearColor: Color(r: 0.5, g: 0.5, b: 0.5, a: 1.0));
 
   await renderer.loadTextureFromUrl('dart', '/static/img/dart.png');
 

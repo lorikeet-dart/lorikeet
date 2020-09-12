@@ -101,11 +101,11 @@ class Object2D {
 
     final image = background.image;
     if (image != null) {
-      final tex =
-          image.textureRegion ?? Rectangle.fromPoints(Point(0, 0), image.size);
+      final tex = image.textureRegion ??
+          Rectangle.fromPoints(Point(0, 0), image.texture.size);
 
-      Point<num> texSize = Point(tex.width * image.size.x / 100,
-          tex.height * image.size.y / 100);
+      Point<num> texSize = Point(
+          tex.width * image.size.x / 100, tex.height * image.size.y / 100);
       Point<num> result;
 
       if (image.fillType == FillType.normal) {
@@ -208,7 +208,7 @@ class BasicObjectRenderer implements ObjectRenderer {
       texCoords.set(object.texCoords.asList);
 
       textureUniform.setTexture(
-          WebGL.TEXTURE0, background.image.image.texture, object.texMode);
+          WebGL.TEXTURE0, background.image.texture.texture, object.texMode);
     }
 
     ctx.drawArrays(WebGL.TRIANGLES, 0, numVertices);

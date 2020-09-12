@@ -14,6 +14,8 @@ class Renderer {
 
   final projectionMatrix = Matrix4();
 
+  final CanvasElement canvas;
+
   RenderingContext2 ctx;
 
   final _textures = <String, Tex>{};
@@ -25,7 +27,8 @@ class Renderer {
   Program currentProgram;
 
   Renderer._(
-      {this.ctx,
+      {this.canvas,
+      this.ctx,
       this.noTexture,
       this.clearColor,
       Matrix4 projectionMatrix,
@@ -37,6 +40,18 @@ class Renderer {
 
     _textures.addAll(textures);
     this.programs.addAll(programs);
+  }
+
+  void adjustSize({int width, int height}) {
+    width ??= canvas.clientWidth;
+    height ??= canvas.clientHeight;
+
+    canvas.width = width;
+    canvas.height = height;
+    ctx.viewport(0, 0, width, height);
+
+    projectionMatrix.assign(Matrix4.ortho(
+        0, width.toDouble(), height.toDouble(), 0, -1000.0, 1000.0));
   }
 
   void useProgram(Program program) {
@@ -78,7 +93,7 @@ class Renderer {
   }
 
   Tex getTexture(String key) {
-    if(_textures.containsKey(key)) return _textures[key];
+    if (_textures.containsKey(key)) return _textures[key];
 
     throw Exception('texture with key $key not found');
   }
@@ -96,17 +111,26 @@ class Renderer {
     }
   }
 
-  static Renderer makeRenderer(RenderingContext2 ctx,
-      {Color clearColor, Matrix4 projectionMatrix}) {
+  static Renderer makeRenderer(CanvasElement canvas,
+      {Color clearColor, Matrix4 projectionMatrix, Map contextAttributes}) {
     clearColor ??= Color();
+
+    final ctx = canvas.getContext('webgl2',
+        Map.from(contextAttributes ?? {})..['premultipliedAlpha'] = false);
+
     final noTexture = makePixelTexture(ctx, Color());
     final basicObjectRenderer = BasicObjectRenderer.build(ctx);
 
-    return Renderer._(
+    final ret = Renderer._(
+        canvas: canvas,
         ctx: ctx,
         clearColor: clearColor,
         noTexture: noTexture,
         programs: {'basic': basicObjectRenderer},
         projectionMatrix: projectionMatrix);
+
+    ret.adjustSize();
+
+    return ret;
   }
 }

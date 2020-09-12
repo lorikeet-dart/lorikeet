@@ -9,48 +9,52 @@ Future<void> main() async {
   final CanvasElement canvas = querySelector('#rectangle');
 
   final renderer = Renderer.makeRenderer(canvas,
-      clearColor: Color(r: 0.5, g: 0.5, b: 0.5, a: 1.0));
+      clearColor: Color(r: 0.9, g: 0.9, b: 0.9, a: 1.0));
 
   await renderer.loadTextureFromUrl('dart', '/static/img/dart.png');
 
   final objects = <Object2D>[];
 
+  // Smaller than box
   {
-    final rect = Object2D.rectangularMesh(renderer, Rectangle(50, 50, 100, 100),
+    final rect = Object2D.rectangularMesh(renderer, Rectangle(50, 50, 250, 250),
         background: Background(
-            color: Color(r: 1.0, a: 1.0),
+            color: Color(r: 0.8, g: 0.8, b: 0.6, a: 1.0),
             image: ImageProperties(renderer.getTexture('dart'),
-                fillType: FillType.cover)));
+                fillType: FillType.contain, size: Point(100, 120))));
     objects.add(rect);
   }
 
+  // Wider than box
   {
     final rect = Object2D.rectangularMesh(
-        renderer, Rectangle(50, 550, 300, 150),
+        renderer, Rectangle(50, 350, 150, 250),
         background: Background(
-            color: Color(r: 1.0, a: 1.0),
+            color: Color(r: 0.8, g: 0.8, b: 0.6, a: 1.0),
             image: ImageProperties(renderer.getTexture('dart'),
-                fillType: FillType.cover)));
+                fillType: FillType.contain, size: Point(100, 50))));
     objects.add(rect);
   }
 
+  // Taller than box
   {
     final rect = Object2D.rectangularMesh(
-        renderer, Rectangle(550, 50, 150, 300),
+        renderer, Rectangle(350, 50, 250, 150),
         background: Background(
-            color: Color(r: 1.0, a: 1.0),
+            color: Color(r: 0.8, g: 0.8, b: 0.6, a: 1.0),
             image: ImageProperties(renderer.getTexture('dart'),
-                fillType: FillType.cover)));
+                fillType: FillType.contain, size: Point(50, 100))));
     objects.add(rect);
   }
 
+  // Wider and taller than box
   {
     final rect = Object2D.rectangularMesh(
-        renderer, Rectangle(550, 550, 250, 300),
+        renderer, Rectangle(350, 350, 150, 100),
         background: Background(
-            color: Color(r: 1.0, a: 1.0),
+            color: Color(r: 0.8, g: 0.8, b: 0.6, a: 1.0),
             image: ImageProperties(renderer.getTexture('dart'),
-                fillType: FillType.cover)));
+                fillType: FillType.contain, size: Point(80, 120))));
     objects.add(rect);
   }
 
