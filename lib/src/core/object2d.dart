@@ -1,14 +1,15 @@
 import 'dart:math';
 
-import 'package:lorikeet/src/core/core.dart';
+import 'background.dart';
+import 'filltype.dart';
 import 'package:lorikeet/src/primitive/primitive.dart';
 
 class Object2D {
   final Rectangle box;
 
-  int order = 0;
+  final int order;
 
-  Vertex2s vertices;
+  final Vertex2s vertices;
 
   final Vertex2s texCoords;
 
@@ -53,17 +54,43 @@ class Object2D {
 
   static Object2D rectangularMesh(
     Rectangle<num> box, {
+    List<Point<num>> path,
     Matrix4 transformationMatrix,
     Transform transform,
     Background background,
   }) {
-    final vertices = Vertex2s.length(6);
-    vertices[0] = Vertex2(x: box.left, y: box.top);
-    vertices[1] = Vertex2(x: box.left + box.width, y: box.top);
-    vertices[2] = Vertex2(x: box.left + box.width, y: box.top + box.height);
-    vertices[3] = Vertex2(x: box.left, y: box.top);
-    vertices[4] = Vertex2(x: box.left, y: box.top + box.height);
-    vertices[5] = Vertex2(x: box.left + box.width, y: box.top + box.height);
+    Vertex2s vertices;
+    Vertex2s texCoords;
+    if (path == null) {
+      vertices = Vertex2s.length(6);
+      vertices[0] = Vertex2(x: box.left, y: box.top);
+      vertices[1] = Vertex2(x: box.left + box.width, y: box.top);
+      vertices[2] = Vertex2(x: box.left + box.width, y: box.top + box.height);
+      vertices[3] = Vertex2(x: box.left, y: box.top);
+      vertices[4] = Vertex2(x: box.left + box.width, y: box.top + box.height);
+      vertices[5] = Vertex2(x: box.left, y: box.top + box.height);
+
+      texCoords = Vertex2s.length(6);
+      texCoords[0] = Vertex2(x: 0, y: 0);
+      texCoords[1] = Vertex2(x: 1, y: 0);
+      texCoords[2] = Vertex2(x: 1, y: 1);
+      texCoords[3] = Vertex2(x: 0, y: 0);
+      texCoords[4] = Vertex2(x: 1, y: 1);
+      texCoords[5] = Vertex2(x: 0, y: 1);
+    } else {
+      final numTriangles = path.length - 2;
+      final points = path
+          .map((p) => Vertex2(
+              x: box.left + (p.x * box.width / 100),
+              y: box.top + (p.y * box.height / 100)))
+          .toList();
+      vertices = Vertex2s.length(numTriangles * 3);
+      for (int i = 0; i < numTriangles; i++) {
+        vertices[(i * 3) + 0] = points[0];
+        vertices[(i * 3) + 1] = points[i + 1];
+        vertices[(i * 3) + 2] = points[i + 2];
+      }
+    }
 
     transformationMatrix ??= Matrix4.I();
     transform ??= Transform();
@@ -89,7 +116,7 @@ class Object2D {
       transformationMatrix.translate(x: -tx, y: -ty);
     }
 
-    Vertex2s texCoords = Vertex2s.length(6);
+
     bool repeatTexture = false;
 
     Rectangle<num> textureRegion = Rectangle<num>(0, 0, 1.0, 1.0);
@@ -116,12 +143,17 @@ class Object2D {
         repeatTexture = true;
       }
 
+      // TODO move this scaling to vertex shader
+      texCoords.multiply(result.toVertex2);
+
+      /*
       texCoords[0] = Vertex2(x: 0, y: 0);
       texCoords[1] = Vertex2(x: result.width, y: 0.0);
       texCoords[2] = Vertex2(x: result.width, y: result.height);
       texCoords[3] = Vertex2(x: 0.0, y: 0.0);
-      texCoords[4] = Vertex2(x: 0.0, y: result.height);
-      texCoords[5] = Vertex2(x: result.width, y: result.height);
+      texCoords[4] = Vertex2(x: result.width, y: result.height);
+      texCoords[5] = Vertex2(x: 0.0, y: result.height);
+       */
 
       textureRegion = tex.divide(image.texture.size);
     }
