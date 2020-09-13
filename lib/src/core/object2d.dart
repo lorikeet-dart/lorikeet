@@ -78,17 +78,26 @@ class Object2D {
       texCoords[4] = Vertex2(x: 1, y: 1);
       texCoords[5] = Vertex2(x: 0, y: 1);
     } else {
+      // TODO validate that polygon is simple and clockwise
       final numTriangles = path.length - 2;
       final points = path
           .map((p) => Vertex2(
               x: box.left + (p.x * box.width / 100),
               y: box.top + (p.y * box.height / 100)))
           .toList();
+
+      final texPoints =
+          path.map((p) => Vertex2(x: p.x / 100, y: p.y / 100)).toList();
       vertices = Vertex2s.length(numTriangles * 3);
+      texCoords = Vertex2s.length(numTriangles * 3);
       for (int i = 0; i < numTriangles; i++) {
         vertices[(i * 3) + 0] = points[0];
         vertices[(i * 3) + 1] = points[i + 1];
         vertices[(i * 3) + 2] = points[i + 2];
+
+        texCoords[(i * 3) + 0] = texPoints[0];
+        texCoords[(i * 3) + 1] = texPoints[i + 1];
+        texCoords[(i * 3) + 2] = texPoints[i + 2];
       }
     }
 
@@ -115,7 +124,6 @@ class Object2D {
 
       transformationMatrix.translate(x: -tx, y: -ty);
     }
-
 
     bool repeatTexture = false;
 
