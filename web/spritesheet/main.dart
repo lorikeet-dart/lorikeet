@@ -14,7 +14,7 @@ Future<void> main() async {
   final objects = <Object2D>[];
 
   {
-    final rect = Object2D.rectangularMesh(renderer, Rectangle(10, 10, 128, 128),
+    final rect = Object2D.rectangularMesh(Rectangle(10, 10, 128, 128),
         background: Background(
             color: Color(r: 0.5, g: 0.5, a: 1),
             image: ImageProperties(renderer.getTexture('spritesheet'),
@@ -23,8 +23,7 @@ Future<void> main() async {
   }
 
   {
-    final rect = Object2D.rectangularMesh(
-        renderer, Rectangle(150, 10, 256, 256),
+    final rect = Object2D.rectangularMesh(Rectangle(150, 10, 256, 256),
         background: Background(
             color: Color(r: 0.5, g: 0.5, a: 1),
             image: ImageProperties(renderer.getTexture('spritesheet'),
@@ -34,8 +33,7 @@ Future<void> main() async {
   }
 
   {
-    final rect = Object2D.rectangularMesh(
-        renderer, Rectangle(450, 10, 256, 256),
+    final rect = Object2D.rectangularMesh(Rectangle(450, 10, 256, 256),
         background: Background(
             color: Color(r: 0.5, g: 0.5, a: 1),
             image: ImageProperties(renderer.getTexture('spritesheet'),
@@ -45,8 +43,7 @@ Future<void> main() async {
   }
 
   {
-    final rect = Object2D.rectangularMesh(
-        renderer, Rectangle(750, 10, 100, 100),
+    final rect = Object2D.rectangularMesh(Rectangle(750, 10, 100, 100),
         background: Background(
             color: Color(r: 0.5, g: 0.5, a: 1),
             image: ImageProperties(renderer.getTexture('spritesheet'),

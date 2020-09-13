@@ -13,7 +13,7 @@ Future<void> main() async {
   final objects = <Object2D>[];
 
   {
-    final rect = Object2D.rectangularMesh(renderer, Rectangle(50, 50, 400, 400),
+    final rect = Object2D.rectangularMesh(Rectangle(50, 50, 400, 400),
         background: Background(
             color: Color(r: 1.0, a: 1.0),
             image: ImageProperties(renderer.getTexture('dart'),

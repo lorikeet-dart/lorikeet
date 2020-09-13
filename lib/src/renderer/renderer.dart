@@ -110,7 +110,9 @@ class Renderer {
     ctx.blendFunc(WebGL.SRC_ALPHA, WebGL.ONE_MINUS_SRC_ALPHA);
 
     for (final object in objects) {
-      object.shader.render(this, object);
+      if (object is Object2D) {
+        programs['basic'].render(this, object);
+      }
     }
   }
 

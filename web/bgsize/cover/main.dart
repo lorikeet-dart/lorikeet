@@ -13,7 +13,7 @@ Future<void> main() async {
   final objects = <Object2D>[];
 
   {
-    final rect = Object2D.rectangularMesh(renderer, Rectangle(50, 50, 100, 100),
+    final rect = Object2D.rectangularMesh(Rectangle(50, 50, 100, 100),
         background: Background(
             color: Color(r: 1.0, a: 1.0),
             image: ImageProperties(renderer.getTexture('dart'),
@@ -22,8 +22,7 @@ Future<void> main() async {
   }
 
   {
-    final rect = Object2D.rectangularMesh(
-        renderer, Rectangle(50, 550, 300, 150),
+    final rect = Object2D.rectangularMesh(Rectangle(50, 550, 300, 150),
         background: Background(
             color: Color(r: 1.0, a: 1.0),
             image: ImageProperties(renderer.getTexture('dart'),
@@ -32,8 +31,7 @@ Future<void> main() async {
   }
 
   {
-    final rect = Object2D.rectangularMesh(
-        renderer, Rectangle(550, 50, 150, 300),
+    final rect = Object2D.rectangularMesh(Rectangle(550, 50, 150, 300),
         background: Background(
             color: Color(r: 1.0, a: 1.0),
             image: ImageProperties(renderer.getTexture('dart'),
@@ -42,8 +40,7 @@ Future<void> main() async {
   }
 
   {
-    final rect = Object2D.rectangularMesh(
-        renderer, Rectangle(550, 550, 250, 300),
+    final rect = Object2D.rectangularMesh(Rectangle(550, 550, 250, 300),
         background: Background(
             color: Color(r: 1.0, a: 1.0),
             image: ImageProperties(renderer.getTexture('dart'),
