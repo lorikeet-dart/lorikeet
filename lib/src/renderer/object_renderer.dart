@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:web_gl';
 
 import 'package:lorikeet/src/glutil/attribute.dart';
