@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'dart:web_gl';
 
-import 'package:lorikeet/src/primitive.dart';
+import 'package:lorikeet/src/primitive/primitive.dart';
 
 class AttributeInfo {
   final RenderingContext2 ctx;

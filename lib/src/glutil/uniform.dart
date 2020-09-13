@@ -1,8 +1,7 @@
 import 'dart:web_gl';
 
-import 'package:lorikeet/src/matrix.dart';
-import 'package:lorikeet/src/object_renderer.dart';
-import 'package:lorikeet/src/primitive.dart';
+import 'package:lorikeet/src/renderer/object_renderer.dart';
+import 'package:lorikeet/src/primitive/primitive.dart';
 
 abstract class UniformInfo {
   RenderingContext2 get ctx;
@@ -90,7 +89,7 @@ class TextureUniform implements UniformInfo {
 
   TextureUniform({this.ctx, this.location});
 
-  void setTexture(TextureIndex textureIndex, Texture texture, TexMode mode) {
+  void setTexture(TextureIndex textureIndex, Texture texture) {
     ctx.activeTexture(textureIndex.pointer);
     ctx.bindTexture(WebGL.TEXTURE_2D, texture);
 

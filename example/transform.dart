@@ -1,4 +1,4 @@
-import 'package:lorikeet/src/matrix.dart';
+import 'package:lorikeet/src/primitive/primitive.dart';
 
 void main() {
   final mat = Matrix4.I();

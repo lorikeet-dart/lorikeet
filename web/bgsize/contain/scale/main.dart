@@ -1,9 +1,6 @@
 import 'dart:html';
 
-import 'package:lorikeet/src/matrix.dart';
-import 'package:lorikeet/src/object_renderer.dart';
-import 'package:lorikeet/src/primitive.dart';
-import 'package:lorikeet/src/render.dart';
+import 'package:lorikeet/lorikeet.dart';
 
 Future<void> main() async {
   final CanvasElement canvas = querySelector('#rectangle');

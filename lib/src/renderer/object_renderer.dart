@@ -3,11 +3,11 @@ import 'dart:web_gl';
 
 import 'package:lorikeet/src/glutil/attribute.dart';
 import 'package:lorikeet/src/glutil/uniform.dart';
-import 'package:lorikeet/src/matrix.dart';
-import 'package:lorikeet/src/primitive.dart';
-import 'package:lorikeet/src/render.dart';
+import 'package:lorikeet/src/primitive/primitive.dart';
+import 'package:lorikeet/src/renderer/renderer.dart';
+import 'package:lorikeet/src/core/core.dart';
 
-enum TexMode { CLAMP, REPEAT }
+import '../primitive/primitive.dart';
 
 class Object2D {
   final Renderer renderer;
@@ -20,7 +20,7 @@ class Object2D {
 
   final Vertex2s texCoords;
 
-  final TexMode texMode;
+  final bool repeatTexture;
 
   final Background background;
 
@@ -39,7 +39,7 @@ class Object2D {
     Matrix4 transformationMatrix,
     this.shader,
     this.texCoords,
-    this.texMode,
+    this.repeatTexture,
     this.textureRegion,
   }) {
     if (transformationMatrix != null) {
@@ -104,7 +104,7 @@ class Object2D {
     }
 
     Vertex2s texCoords = Vertex2s.length(6);
-    TexMode texMode = TexMode.CLAMP;
+    bool repeatTexture = false;
 
     Rectangle<num> textureRegion = Rectangle<num>(0, 0, 1.0, 1.0);
 
@@ -127,7 +127,7 @@ class Object2D {
         result = computeCover(box.size, texSize);
       } else if (image.fillType == FillType.repeat) {
         result = computeRepeat(box.size, texSize);
-        texMode = TexMode.REPEAT;
+        repeatTexture = true;
       }
 
       texCoords[0] = Vertex2(x: 0, y: 0);
@@ -145,7 +145,7 @@ class Object2D {
         transformationMatrix: transformationMatrix,
         texCoords: texCoords,
         background: background,
-        texMode: texMode,
+        repeatTexture: repeatTexture,
         textureRegion: textureRegion);
   }
 }
@@ -210,17 +210,16 @@ class BasicObjectRenderer implements ObjectRenderer {
 
       repeatTexture.setData(false);
 
-      textureUniform.setTexture(
-          TextureIndex.texture0, renderer.noTexture, TexMode.CLAMP);
+      textureUniform.setTexture(TextureIndex.texture0, renderer.noTexture);
     } else {
       texCoords.set(object.texCoords.asList);
 
-      repeatTexture.setData(object.texMode == TexMode.REPEAT);
+      repeatTexture.setData(object.repeatTexture);
       texRegionTopLeft.setData(object.textureRegion.topLeft.toVertex2);
       texRegionSize.setData(object.textureRegion.size.toVertex2);
 
-      textureUniform.setTexture(TextureIndex.texture0,
-          background.image.texture.texture, TexMode.CLAMP);
+      textureUniform.setTexture(
+          TextureIndex.texture0, background.image.texture.texture);
     }
 
     ctx.drawArrays(WebGL.TRIANGLES, 0, numVertices);

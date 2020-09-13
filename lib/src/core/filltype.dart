@@ -1,6 +1,6 @@
-import 'dart:html';
+import 'dart:math';
 
-import 'package:lorikeet/src/primitive.dart';
+import 'package:lorikeet/src/primitive/primitive.dart';
 
 enum FillType {
   normal,

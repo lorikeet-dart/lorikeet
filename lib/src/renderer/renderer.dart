@@ -2,12 +2,15 @@ import 'dart:html';
 import 'dart:web_gl';
 
 import 'package:lorikeet/src/glutil/uniform.dart';
-import 'package:lorikeet/src/matrix.dart';
-import 'package:lorikeet/src/object_renderer.dart';
-import 'package:lorikeet/src/primitive.dart';
+import 'package:lorikeet/src/primitive/primitive.dart';
+import 'package:lorikeet/src/renderer/object_renderer.dart';
 
 import 'package:image/image.dart' as image_tools;
 import 'package:http/http.dart';
+
+import 'package:lorikeet/src/core/core.dart';
+
+export 'object_renderer.dart';
 
 class Renderer {
   Color clearColor = Color();

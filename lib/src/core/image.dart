@@ -1,11 +1,8 @@
 import 'dart:math';
 
 import 'dart:web_gl';
-import 'matrix.dart';
+import 'package:lorikeet/src/primitive/primitive.dart';
 import 'filltype.dart';
-
-export 'matrix.dart';
-export 'filltype.dart';
 
 class ImageProperties {
   final Tex texture;
@@ -52,18 +49,4 @@ class Tex {
   Point<num> get size => Point<num>(width, height);
 }
 
-extension PointSize on Point<num> {
-  num get width => x;
-  num get height => y;
-
-  Vertex2 get toVertex2 => Vertex2(x: x, y: y);
-}
-
-extension RectangleSize on Rectangle<num> {
-  Point<num> get size => Point<num>(width, height);
-
-  Rectangle<num> divide(Point<num> other) {
-    return Rectangle(
-        left / other.x, top / other.y, width / other.x, height / other.y);
-  }
-}
+enum TexMode { CLAMP, REPEAT }
