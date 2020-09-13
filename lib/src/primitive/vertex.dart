@@ -10,6 +10,10 @@ class Vertex2 {
 
   factory Vertex2.fromPoint(math.Point<num> p) => Vertex2(x: p.x, y: p.y);
 
+  Vertex2 multiply(Vertex2 other) {
+    return Vertex2(x: x * other.x, y: y * other.y);
+  }
+
   Vertex4 toVertex4({num z = 0, num w = 1}) => Vertex4(x: x, y: y, z: z, w: w);
 
   void divideByPoint(math.Point<num> other) {
@@ -42,6 +46,13 @@ class Vertex2s {
   void set(Iterable<Vertex2> vertices, [int start = 0]) {
     for (final v in vertices) {
       this[start++] = v;
+    }
+  }
+
+  void multiply(Vertex2 other) {
+    for (int i = 0; i < _data.length; i += 2) {
+      _data[i] *= other.x;
+      _data[i + 1] *= other.y;
     }
   }
 
