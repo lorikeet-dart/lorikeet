@@ -1,18 +1,11 @@
 import 'dart:web_gl';
 
-import 'package:lorikeet/src/glutil/attribute.dart';
-import 'package:lorikeet/src/glutil/uniform.dart';
-import 'package:lorikeet/src/primitive/primitive.dart';
-import 'package:lorikeet/src/renderer/renderer.dart';
 import 'package:lorikeet/src/core/core.dart';
+import 'package:lorikeet/src/glutil/glutil.dart';
+import 'package:lorikeet/src/renderer/renderer.dart';
+import 'object_renderer.dart';
 
-import '../primitive/primitive.dart';
-
-abstract class Mesh2DRenderer<M extends Mesh2D> {
-  void render(Renderer renderer, M object);
-}
-
-class Object2DRenderer implements Mesh2DRenderer<Object2D> {
+class LinearGradientRenderer implements Mesh2DRenderer<LinearGradientMesh> {
   final RenderingContext2 ctx;
 
   final Program program;
@@ -27,30 +20,34 @@ class Object2DRenderer implements Mesh2DRenderer<Object2D> {
 
   final ColorUniform bgColorUniform;
 
-  final TextureUniform textureUniform;
+  final FloatUniform baseC;
+  final FloatUniform baseSlope;
+  final FloatUniform perpSlope;
+  final FloatUniform totalDistance;
 
-  final BoolUniform repeatTexture;
+  final ColorsUniform colors;
+  final FloatsUniform stops;
+  final FloatUniform stopCount;
 
-  final Vertex2Uniform texRegionTopLeft;
-
-  final Vertex2Uniform texRegionSize;
-
-  Object2DRenderer({
+  LinearGradientRenderer({
     this.ctx,
     this.program,
     this.position,
     this.texCoords,
-    this.transformationMatrix,
     this.projectionMatrix,
+    this.transformationMatrix,
     this.bgColorUniform,
-    this.textureUniform,
-    this.repeatTexture,
-    this.texRegionTopLeft,
-    this.texRegionSize,
+    this.baseC,
+    this.baseSlope,
+    this.perpSlope,
+    this.totalDistance,
+    this.colors,
+    this.stops,
+    this.stopCount,
   });
 
   @override
-  void render(Renderer renderer, Object2D object) {
+  void render(Renderer renderer, LinearGradientMesh object) {
     renderer.useProgram(program);
 
     final numVertices = object.vertices.count;
@@ -60,25 +57,17 @@ class Object2DRenderer implements Mesh2DRenderer<Object2D> {
     projectionMatrix.setData(renderer.projectionMatrix);
     transformationMatrix.setData(object.transformationMatrix);
 
-    final background = object.background;
-    bgColorUniform.setData(background.color);
+    texCoords.set(object.texCoords.asDataList);
+    bgColorUniform.setData(object.color);
 
-    if (background.image == null) {
-      texCoords.setVertex2(Vertex2());
+    baseC.setData(object.baseC);
+    baseSlope.setData(object.baseSlope);
+    perpSlope.setData(object.perpSlope);
+    totalDistance.setData(object.totalDistance);
 
-      repeatTexture.setData(false);
-
-      textureUniform.setTexture(TextureIndex.texture0, renderer.noTexture);
-    } else {
-      texCoords.set(object.texCoords.asDataList);
-
-      repeatTexture.setData(object.repeatTexture);
-      texRegionTopLeft.setData(object.textureRegion.topLeft.toVertex2);
-      texRegionSize.setData(object.textureRegion.size.toVertex2);
-
-      textureUniform.setTexture(
-          TextureIndex.texture0, background.image.texture.texture);
-    }
+    colors.setData(object.colors);
+    stops.setData(object.stops);
+    stopCount.setData(object.colors.length);
 
     ctx.drawArrays(WebGL.TRIANGLES, 0, numVertices);
   }
@@ -100,35 +89,55 @@ void main(void){
 
   static const fragmentShaderSource = '''
 precision mediump float;
+
+#define MAX_STOPS 2
   
 uniform vec4 bgColor;
-uniform sampler2D texture;
-uniform vec2 texRegionTopLeft;
-uniform vec2 texRegionSize;
-uniform bool repeatTexture;
+uniform float baseSlope;
+uniform float baseC;
+uniform float perpSlope;
+uniform float totalDistance;
+
+uniform vec4 colors[MAX_STOPS];
+uniform float stops[MAX_STOPS];
+uniform int stopCount;
 
 varying vec2 vTexCoord;
 
 void main(void) {
-  vec2 texCoord = vTexCoord;
-  if(repeatTexture) {
-    texCoord = vec2((fract(vTexCoord.x) * texRegionSize.x) + texRegionTopLeft.x, 
-      (fract(vTexCoord.y) * texRegionSize.y) + texRegionTopLeft.y);
-  } else {
-    if(vTexCoord.x >= 0.0 && vTexCoord.x <= 1.0) {
-      texCoord.x = (fract(vTexCoord.x) * texRegionSize.x) + texRegionTopLeft.x;
+  float perpC = vTexCoord.y - perpSlope * vTexCoord.x;
+  float projectionX = (perpC - baseC)/(baseSlope - perpSlope);
+  float projectionY = baseSlope * projectionX + baseC;
+  float distance = sqrt(pow(projectionX - vTexCoord.x, 2.0) + pow(projectionY - vTexCoord.y, 2.0));
+  float distancePercent = distance/totalDistance;
+  
+  float start = stops[0], end = stops[0];
+  vec4 color1 = colors[0], color2 = colors[0];
+  for(int i = 0; i < MAX_STOPS; i++) {
+    if(i == stopCount) {
+      break;
     }
-    if(vTexCoord.y >= 0.0 && vTexCoord.y <= 1.0) {
-      texCoord.y = (fract(vTexCoord.y) * texRegionSize.y) + texRegionTopLeft.y;
+  
+    if(distancePercent < stops[i]) {
+      end = stops[i];
+      color2 = colors[i];
+      break;
     }
+    start = stops[i];
+    color1 = colors[i];
+    
+    end = stops[i];
+    color2 = colors[i];
   }
-
-  vec4 texColor = texture2D(texture, texCoord);
-  gl_FragColor = bgColor * (1.0 - texColor.w) + texColor * texColor.w;
+  
+  distancePercent = (distancePercent - start)/(end - start);
+  
+  vec4 gradColor = mix(color1, color2, distancePercent);
+  gl_FragColor = bgColor * (1.0 - gradColor.w) + gradColor * gradColor.w;
 }
   ''';
 
-  static Object2DRenderer build(RenderingContext2 ctx) {
+  static LinearGradientRenderer build(RenderingContext2 ctx) {
     Shader vs = ctx.createShader(WebGL.VERTEX_SHADER);
     ctx.shaderSource(vs, vertexShaderSource);
     ctx.compileShader(vs);
@@ -169,15 +178,15 @@ void main(void) {
     final transformationMatrixUniform =
         Matrix4Uniform.make(ctx, program, 'transformationMatrix');
     final bgColorUniform = ColorUniform.make(ctx, program, 'bgColor');
-    final textureUniform = TextureUniform.make(ctx, program, 'texture');
-    final repeatTextureUniform =
-        BoolUniform.make(ctx, program, 'repeatTexture');
-    final texRegionTopLeftUniform =
-        Vertex2Uniform.make(ctx, program, 'texRegionTopLeft');
-    final texRegionSizeUniform =
-        Vertex2Uniform.make(ctx, program, 'texRegionSize');
+    final baseC = FloatUniform.make(ctx, program, 'baseC');
+    final baseSlope = FloatUniform.make(ctx, program, 'baseSlope');
+    final perpSlope = FloatUniform.make(ctx, program, 'perpSlope');
+    final totalDistance = FloatUniform.make(ctx, program, 'totalDistance');
+    final colors = ColorsUniform.make(ctx, program, 'colors');
+    final stops = FloatsUniform.make(ctx, program, 'stops');
+    final stopCount = FloatUniform.make(ctx, program, 'stopCount');
 
-    return Object2DRenderer(
+    return LinearGradientRenderer(
       ctx: ctx,
       program: program,
       position: positionAttribute,
@@ -185,10 +194,13 @@ void main(void) {
       projectionMatrix: projectionMatrixUniform,
       transformationMatrix: transformationMatrixUniform,
       bgColorUniform: bgColorUniform,
-      textureUniform: textureUniform,
-      repeatTexture: repeatTextureUniform,
-      texRegionTopLeft: texRegionTopLeftUniform,
-      texRegionSize: texRegionSizeUniform,
+      baseC: baseC,
+      baseSlope: baseSlope,
+      perpSlope: perpSlope,
+      totalDistance: totalDistance,
+      colors: colors,
+      stops: stops,
+      stopCount: stopCount,
     );
   }
 }

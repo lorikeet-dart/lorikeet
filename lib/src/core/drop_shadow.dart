@@ -1,11 +1,26 @@
 import 'dart:math';
-import 'dart:typed_data';
 
-import 'package:lorikeet/src/core/core.dart';
-import 'package:lorikeet/src/core/linear_gradient.dart';
+import 'package:lorikeet/src/core/object2d.dart';
 import 'package:lorikeet/src/primitive/primitive.dart';
 
-class LinearGradientMesh implements Mesh2D {
+class DropShadow {
+  final Point<int> offset;
+
+  final int blur;
+
+  final int scale; // TODO could this be a vector
+
+  final Color color;
+
+  DropShadow(
+      {this.offset = const Point(0, 0),
+      this.blur = 0,
+      this.scale = 1,
+      Color color})
+      : color = color ?? Color(a: 1);
+}
+
+class DropShadowMesh implements Mesh2D {
   final Rectangle box;
 
   final Vertex2s vertices;
@@ -16,38 +31,17 @@ class LinearGradientMesh implements Mesh2D {
 
   final Color color;
 
-  final num baseSlope;
-
-  final num baseC;
-
-  final num perpSlope;
-
-  final num totalDistance;
-
-  final List<Color> colors;
-
-  final List<double> stops;
-
-  LinearGradientMesh(this.box, this.vertices, this.texCoords,
-      {Matrix4 transformationMatrix,
-      Color color,
-      this.baseSlope,
-      this.baseC,
-      this.perpSlope,
-      this.totalDistance,
-      this.colors,
-      this.stops})
-      : color = color ?? Color() {
+  DropShadowMesh(this.box, this.vertices, this.texCoords,
+      {Matrix4 transformationMatrix, this.color}) {
     if (transformationMatrix != null) {
       this.transformationMatrix.copyFrom(transformationMatrix);
     }
   }
 
-  static LinearGradientMesh make(Rectangle<num> box, LinearGradient gradient,
+  static DropShadowMesh make(Rectangle<num> box, DropShadow shadow,
       {List<Point<num>> path,
       Matrix4 transformationMatrix,
-      Transform transform,
-      Color color}) {
+      Transform transform}) {
     Vertex2s vertices;
     Vertex2s texCoords;
 
@@ -115,56 +109,7 @@ class LinearGradientMesh implements Mesh2D {
       transformationMatrix.translate(x: -tx, y: -ty);
     }
 
-    num angle = gradient.angle % 360;
-    if (angle.isNegative) {
-      angle = 360 - angle;
-    }
-    final baseSlope = tan(degToRad(angle));
-
-    Point<num> basePoint, endPoint;
-    if (angle < 90) {
-      basePoint = Point(1, 0);
-      endPoint = Point(0, 1);
-    } else if (angle < 180) {
-      basePoint = Point(1, 1);
-      endPoint = Point(0, 0);
-    } else if (angle < 270) {
-      basePoint = Point(1, 0);
-      endPoint = Point(0, 1);
-    } else {
-      basePoint = Point(0, 0);
-      endPoint = Point(1, 1);
-    }
-
-    final baseC = basePoint.y - baseSlope * basePoint.x;
-    final perpSlope = baseSlope != 0 ? -1 / baseSlope : 1;
-    final totalDistance = _distance(baseSlope, basePoint, endPoint);
-
-    return LinearGradientMesh(box, vertices, texCoords,
-        transformationMatrix: transformationMatrix,
-        color: color,
-        baseC: baseC,
-        baseSlope: baseSlope,
-        perpSlope: perpSlope,
-        totalDistance: totalDistance,
-        colors: gradient.stops.map((e) => e.color).toList(),
-        stops: gradient.stops.map((e) => e.percentage.toDouble()).toList());
+    return DropShadowMesh(box, vertices, texCoords,
+        transformationMatrix: transformationMatrix, color: shadow.color);
   }
-}
-
-Point _perpendicularIntercept(num slope, num c) {
-  num x = -(c * slope) / (1 + slope * slope);
-  num y = slope * x + c;
-
-  return Point(x, y);
-}
-
-num _distance(num slope, Point line1, Point line2) {
-  final c1 = line1.y - slope * line1.x;
-  final c2 = line2.y - slope * line2.x;
-
-  final i1 = _perpendicularIntercept(slope, c1);
-  final i2 = _perpendicularIntercept(slope, c2);
-
-  return i1.distanceTo(i2);
 }

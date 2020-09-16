@@ -4,7 +4,9 @@ import 'background.dart';
 import 'filltype.dart';
 import 'package:lorikeet/src/primitive/primitive.dart';
 
-class Object2D {
+abstract class Mesh2D {} 
+
+class Object2D implements Mesh2D {
   final Rectangle box;
 
   final int order;
@@ -52,7 +54,7 @@ class Object2D {
     return Rectangle(minX, minY, maxX - minX, maxY - minY);
   }
 
-  static Object2D rectangularMesh(
+  static Object2D make(
     Rectangle<num> box, {
     List<Point<num>> path,
     Matrix4 transformationMatrix,
@@ -153,15 +155,6 @@ class Object2D {
 
       // TODO move this scaling to vertex shader
       texCoords.multiply(result.toVertex2);
-
-      /*
-      texCoords[0] = Vertex2(x: 0, y: 0);
-      texCoords[1] = Vertex2(x: result.width, y: 0.0);
-      texCoords[2] = Vertex2(x: result.width, y: result.height);
-      texCoords[3] = Vertex2(x: 0.0, y: 0.0);
-      texCoords[4] = Vertex2(x: result.width, y: result.height);
-      texCoords[5] = Vertex2(x: 0.0, y: result.height);
-       */
 
       textureRegion = tex.divide(image.texture.size);
     }

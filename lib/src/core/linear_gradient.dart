@@ -3,7 +3,7 @@ import 'package:lorikeet/lorikeet.dart';
 class ColorStop {
   final Color color;
 
-  final int percentage;
+  final num percentage;
 
   ColorStop(this.color, this.percentage);
 }
@@ -11,12 +11,11 @@ class ColorStop {
 class LinearGradient {
   final num angle;
 
-  final Color startColor;
-
-  final Color endColor;
-
   final List<ColorStop> stops;
 
-  LinearGradient(this.startColor, this.endColor,
-      {this.angle = 0, this.stops = const []});
+  LinearGradient({this.angle = 0, this.stops = const []});
+
+  factory LinearGradient.between(Color start, Color end, {num angle}) =>
+      LinearGradient(
+          angle: angle, stops: [ColorStop(start, 0), ColorStop(end, 100)]);
 }

@@ -13,7 +13,7 @@ Future<void> main() async {
   final objects = <Object2D>[];
 
   {
-    final rect = Object2D.rectangularMesh(Rectangle(10, 10, 250, 250),
+    final rect = Object2D.make(Rectangle(10, 10, 250, 250),
         path: [Point(50, 0), Point(0, 100), Point(100, 100)],
         background: Background(
             color: Color(r: 1.0, a: 1.0),
@@ -22,7 +22,7 @@ Future<void> main() async {
   }
 
   {
-    final rect = Object2D.rectangularMesh(Rectangle(10, 10, 250, 250),
+    final rect = Object2D.make(Rectangle(10, 10, 250, 250),
         path: [Point(50, 0), Point(0, 100), Point(100, 100)],
         background: Background(
             color: Color(r: 1.0, a: 1.0),

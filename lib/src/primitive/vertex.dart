@@ -56,7 +56,7 @@ class Vertex2s {
     }
   }
 
-  Float32List get asList => _data;
+  Float32List get asDataList => _data;
 
   List<Vertex2> get asVertexList =>
       List<Vertex2>.generate(count, (index) => this[index]);

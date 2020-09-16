@@ -62,4 +62,6 @@ class Colors {
   }
 
   List<Color> get asList => List<Color>.generate(count, (index) => this[index]);
+
+  Float32List get asDataList => _data;
 }

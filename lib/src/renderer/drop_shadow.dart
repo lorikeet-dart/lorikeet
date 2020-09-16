@@ -1,18 +1,11 @@
 import 'dart:web_gl';
 
-import 'package:lorikeet/src/glutil/attribute.dart';
-import 'package:lorikeet/src/glutil/uniform.dart';
-import 'package:lorikeet/src/primitive/primitive.dart';
-import 'package:lorikeet/src/renderer/renderer.dart';
 import 'package:lorikeet/src/core/core.dart';
+import 'package:lorikeet/src/glutil/glutil.dart';
+import 'package:lorikeet/src/renderer/renderer.dart';
+import 'object_renderer.dart';
 
-import '../primitive/primitive.dart';
-
-abstract class Mesh2DRenderer<M extends Mesh2D> {
-  void render(Renderer renderer, M object);
-}
-
-class Object2DRenderer implements Mesh2DRenderer<Object2D> {
+class DropShadowRenderer implements Mesh2DRenderer<DropShadowMesh> {
   final RenderingContext2 ctx;
 
   final Program program;
@@ -27,30 +20,18 @@ class Object2DRenderer implements Mesh2DRenderer<Object2D> {
 
   final ColorUniform bgColorUniform;
 
-  final TextureUniform textureUniform;
-
-  final BoolUniform repeatTexture;
-
-  final Vertex2Uniform texRegionTopLeft;
-
-  final Vertex2Uniform texRegionSize;
-
-  Object2DRenderer({
+  DropShadowRenderer({
     this.ctx,
     this.program,
     this.position,
     this.texCoords,
-    this.transformationMatrix,
     this.projectionMatrix,
+    this.transformationMatrix,
     this.bgColorUniform,
-    this.textureUniform,
-    this.repeatTexture,
-    this.texRegionTopLeft,
-    this.texRegionSize,
   });
 
   @override
-  void render(Renderer renderer, Object2D object) {
+  void render(Renderer renderer, DropShadowMesh object) {
     renderer.useProgram(program);
 
     final numVertices = object.vertices.count;
@@ -60,25 +41,10 @@ class Object2DRenderer implements Mesh2DRenderer<Object2D> {
     projectionMatrix.setData(renderer.projectionMatrix);
     transformationMatrix.setData(object.transformationMatrix);
 
-    final background = object.background;
-    bgColorUniform.setData(background.color);
+    texCoords.set(object.texCoords.asDataList);
+    bgColorUniform.setData(object.color);
 
-    if (background.image == null) {
-      texCoords.setVertex2(Vertex2());
-
-      repeatTexture.setData(false);
-
-      textureUniform.setTexture(TextureIndex.texture0, renderer.noTexture);
-    } else {
-      texCoords.set(object.texCoords.asDataList);
-
-      repeatTexture.setData(object.repeatTexture);
-      texRegionTopLeft.setData(object.textureRegion.topLeft.toVertex2);
-      texRegionSize.setData(object.textureRegion.size.toVertex2);
-
-      textureUniform.setTexture(
-          TextureIndex.texture0, background.image.texture.texture);
-    }
+    // TODO
 
     ctx.drawArrays(WebGL.TRIANGLES, 0, numVertices);
   }
@@ -102,33 +68,16 @@ void main(void){
 precision mediump float;
   
 uniform vec4 bgColor;
-uniform sampler2D texture;
-uniform vec2 texRegionTopLeft;
-uniform vec2 texRegionSize;
-uniform bool repeatTexture;
 
 varying vec2 vTexCoord;
 
 void main(void) {
-  vec2 texCoord = vTexCoord;
-  if(repeatTexture) {
-    texCoord = vec2((fract(vTexCoord.x) * texRegionSize.x) + texRegionTopLeft.x, 
-      (fract(vTexCoord.y) * texRegionSize.y) + texRegionTopLeft.y);
-  } else {
-    if(vTexCoord.x >= 0.0 && vTexCoord.x <= 1.0) {
-      texCoord.x = (fract(vTexCoord.x) * texRegionSize.x) + texRegionTopLeft.x;
-    }
-    if(vTexCoord.y >= 0.0 && vTexCoord.y <= 1.0) {
-      texCoord.y = (fract(vTexCoord.y) * texRegionSize.y) + texRegionTopLeft.y;
-    }
-  }
-
-  vec4 texColor = texture2D(texture, texCoord);
-  gl_FragColor = bgColor * (1.0 - texColor.w) + texColor * texColor.w;
+  vec4 gradColor = vec4(1, 0, 1, 0.5);
+  gl_FragColor = bgColor * (1.0 - gradColor.w) + gradColor * gradColor.w;
 }
   ''';
 
-  static Object2DRenderer build(RenderingContext2 ctx) {
+  static DropShadowRenderer build(RenderingContext2 ctx) {
     Shader vs = ctx.createShader(WebGL.VERTEX_SHADER);
     ctx.shaderSource(vs, vertexShaderSource);
     ctx.compileShader(vs);
@@ -157,8 +106,6 @@ void main(void) {
       throw Exception('Compiling program failed: $msg');
     }
 
-    ctx.useProgram(program);
-
     final positionAttribute =
         AttributeInfo.makeArrayBuffer(ctx, program, 'vertex');
     final texCoordsAttribute =
@@ -169,15 +116,8 @@ void main(void) {
     final transformationMatrixUniform =
         Matrix4Uniform.make(ctx, program, 'transformationMatrix');
     final bgColorUniform = ColorUniform.make(ctx, program, 'bgColor');
-    final textureUniform = TextureUniform.make(ctx, program, 'texture');
-    final repeatTextureUniform =
-        BoolUniform.make(ctx, program, 'repeatTexture');
-    final texRegionTopLeftUniform =
-        Vertex2Uniform.make(ctx, program, 'texRegionTopLeft');
-    final texRegionSizeUniform =
-        Vertex2Uniform.make(ctx, program, 'texRegionSize');
 
-    return Object2DRenderer(
+    return DropShadowRenderer(
       ctx: ctx,
       program: program,
       position: positionAttribute,
@@ -185,10 +125,6 @@ void main(void) {
       projectionMatrix: projectionMatrixUniform,
       transformationMatrix: transformationMatrixUniform,
       bgColorUniform: bgColorUniform,
-      textureUniform: textureUniform,
-      repeatTexture: repeatTextureUniform,
-      texRegionTopLeft: texRegionTopLeftUniform,
-      texRegionSize: texRegionSizeUniform,
     );
   }
 }

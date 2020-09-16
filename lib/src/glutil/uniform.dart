@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:web_gl';
 
 import 'package:lorikeet/src/renderer/object_renderer.dart';
@@ -22,10 +23,30 @@ class FloatUniform implements UniformInfo {
     ctx.uniform1f(location, data);
   }
 
-  static UniformInfo make(
+  static FloatUniform make(
       RenderingContext2 ctx, Program program, String uniformName) {
     final location = ctx.getUniformLocation(program, uniformName);
     return FloatUniform(ctx: ctx, location: location);
+  }
+}
+
+class FloatsUniform implements UniformInfo {
+  @override
+  final RenderingContext2 ctx;
+
+  @override
+  final UniformLocation location;
+
+  FloatsUniform({this.ctx, this.location});
+
+  void setData(List<double> data) {
+    ctx.uniform1fv(location, data);
+  }
+
+  static FloatsUniform make(
+      RenderingContext2 ctx, Program program, String uniformName) {
+    final location = ctx.getUniformLocation(program, uniformName);
+    return FloatsUniform(ctx: ctx, location: location);
   }
 }
 
@@ -46,6 +67,26 @@ class ColorUniform implements UniformInfo {
       RenderingContext2 ctx, Program program, String uniformName) {
     final location = ctx.getUniformLocation(program, uniformName);
     return ColorUniform(ctx: ctx, location: location);
+  }
+}
+
+class ColorsUniform implements UniformInfo {
+  @override
+  final RenderingContext2 ctx;
+
+  @override
+  final UniformLocation location;
+
+  ColorsUniform({this.ctx, this.location});
+
+  void setData(List<Color> colors) {
+    ctx.uniform4fv(location, colors.map((e) => e.asList).toList());
+  }
+
+  static ColorsUniform make(
+      RenderingContext2 ctx, Program program, String uniformName) {
+    final location = ctx.getUniformLocation(program, uniformName);
+    return ColorsUniform(ctx: ctx, location: location);
   }
 }
 

@@ -3,6 +3,8 @@ import 'dart:web_gl';
 
 import 'package:lorikeet/src/glutil/uniform.dart';
 import 'package:lorikeet/src/primitive/primitive.dart';
+import 'package:lorikeet/src/renderer/drop_shadow.dart';
+import 'package:lorikeet/src/renderer/linear_gradient.dart';
 import 'package:lorikeet/src/renderer/object_renderer.dart';
 
 import 'package:image/image.dart' as image_tools;
@@ -23,7 +25,11 @@ class Renderer {
 
   final _textures = <String, Tex>{};
 
-  final programs = <String, ObjectRenderer>{};
+  final Object2DRenderer _object2DRenderer;
+
+  final LinearGradientRenderer _linearGradientRenderer;
+
+  final DropShadowRenderer _dropShadowRenderer;
 
   final Texture noTexture;
 
@@ -36,13 +42,17 @@ class Renderer {
       this.clearColor,
       Matrix4 projectionMatrix,
       Map<String, Tex> textures = const {},
-      Map<String, ObjectRenderer> programs = const {}}) {
+      Object2DRenderer object2DRenderer,
+      LinearGradientRenderer linearGradientRenderer,
+      DropShadowRenderer dropShadowRenderer})
+      : _object2DRenderer = object2DRenderer,
+        _linearGradientRenderer = linearGradientRenderer,
+        _dropShadowRenderer = dropShadowRenderer {
     if (projectionMatrix != null) {
       this.projectionMatrix.copyFrom(projectionMatrix);
     }
 
     _textures.addAll(textures);
-    this.programs.addAll(programs);
   }
 
   void adjustSize({int width, int height}) {
@@ -101,8 +111,8 @@ class Renderer {
     throw Exception('texture with key $key not found');
   }
 
-  void render(List<Object2D> objects) {
-    objects.sort((a, b) => a.order - b.order);
+  void render(List<Mesh2D> objects) {
+    // TODO objects.sort((a, b) => a.order - b.order);
 
     ctx.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     ctx.clear(WebGL.COLOR_BUFFER_BIT);
@@ -111,7 +121,14 @@ class Renderer {
 
     for (final object in objects) {
       if (object is Object2D) {
-        programs['basic'].render(this, object);
+        _object2DRenderer.render(this, object);
+      } else if (object is LinearGradientMesh) {
+        _linearGradientRenderer.render(this, object);
+      } else if (object is DropShadowMesh) {
+        _dropShadowRenderer.render(this, object);
+      } else {
+        // TODO implement custom Meshes
+        throw Exception('Unknown Mesh type');
       }
     }
   }
@@ -124,15 +141,20 @@ class Renderer {
         Map.from(contextAttributes ?? {})..['premultipliedAlpha'] = false);
 
     final noTexture = makePixelTexture(ctx, Color());
-    final basicObjectRenderer = BasicObjectRenderer.build(ctx);
+    final object2DRenderer = Object2DRenderer.build(ctx);
+    final linearGradientRenderer = LinearGradientRenderer.build(ctx);
+    // final dropShadowRenderer = DropShadowRenderer.build(ctx);
 
     final ret = Renderer._(
-        canvas: canvas,
-        ctx: ctx,
-        clearColor: clearColor,
-        noTexture: noTexture,
-        programs: {'basic': basicObjectRenderer},
-        projectionMatrix: projectionMatrix);
+      canvas: canvas,
+      ctx: ctx,
+      clearColor: clearColor,
+      noTexture: noTexture,
+      projectionMatrix: projectionMatrix,
+      object2DRenderer: object2DRenderer,
+      linearGradientRenderer: linearGradientRenderer,
+      // dropShadowRenderer: dropShadowRenderer,
+    );
 
     ret.adjustSize();
 
