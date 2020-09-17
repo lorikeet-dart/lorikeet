@@ -24,7 +24,7 @@ class LinearGradientMesh implements Mesh2D {
 
   final num totalDistance;
 
-  final List<Color> colors;
+  final Colors colors;
 
   final List<double> stops;
 
@@ -147,7 +147,7 @@ class LinearGradientMesh implements Mesh2D {
         baseSlope: baseSlope,
         perpSlope: perpSlope,
         totalDistance: totalDistance,
-        colors: gradient.stops.map((e) => e.color).toList(),
+        colors: Colors.fromList(gradient.stops.map((e) => e.color).toList()),
         stops: gradient.stops.map((e) => e.percentage.toDouble()).toList());
   }
 }

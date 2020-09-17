@@ -27,7 +27,7 @@ class LinearGradientRenderer implements Mesh2DRenderer<LinearGradientMesh> {
 
   final ColorsUniform colors;
   final FloatsUniform stops;
-  final FloatUniform stopCount;
+  final IntUniform stopCount;
 
   LinearGradientRenderer({
     this.ctx,
@@ -67,7 +67,7 @@ class LinearGradientRenderer implements Mesh2DRenderer<LinearGradientMesh> {
 
     colors.setData(object.colors);
     stops.setData(object.stops);
-    stopCount.setData(object.colors.length);
+    stopCount.setData(object.stops.length);
 
     ctx.drawArrays(WebGL.TRIANGLES, 0, numVertices);
   }
@@ -183,8 +183,8 @@ void main(void) {
     final perpSlope = FloatUniform.make(ctx, program, 'perpSlope');
     final totalDistance = FloatUniform.make(ctx, program, 'totalDistance');
     final colors = ColorsUniform.make(ctx, program, 'colors');
-    final stops = FloatsUniform.make(ctx, program, 'stops');
-    final stopCount = FloatUniform.make(ctx, program, 'stopCount');
+    final stops = FloatsUniform.make(ctx, program, 'stops[0]');
+    final stopCount = IntUniform.make(ctx, program, 'stopCount');
 
     return LinearGradientRenderer(
       ctx: ctx,

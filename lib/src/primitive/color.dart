@@ -34,6 +34,12 @@ class Color {
 class Colors {
   Float32List _data;
 
+  Colors.fromList(Iterable<Color> colors) {
+    _data = Float32List.fromList(colors.map((e) => e.asList).fold<List<double>>(
+        [],
+        (previousValue, element) => previousValue..addAll(element)).toList());
+  }
+
   Colors.length(int length) {
     _data = Float32List(length * 4);
   }

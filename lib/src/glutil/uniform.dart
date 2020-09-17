@@ -10,6 +10,26 @@ abstract class UniformInfo {
   UniformLocation get location;
 }
 
+class IntUniform implements UniformInfo {
+  @override
+  final RenderingContext2 ctx;
+
+  @override
+  final UniformLocation location;
+
+  IntUniform({this.ctx, this.location});
+
+  void setData(int data) {
+    ctx.uniform1i(location, data);
+  }
+
+  static IntUniform make(
+      RenderingContext2 ctx, Program program, String uniformName) {
+    final location = ctx.getUniformLocation(program, uniformName);
+    return IntUniform(ctx: ctx, location: location);
+  }
+}
+
 class FloatUniform implements UniformInfo {
   @override
   final RenderingContext2 ctx;
@@ -79,8 +99,8 @@ class ColorsUniform implements UniformInfo {
 
   ColorsUniform({this.ctx, this.location});
 
-  void setData(List<Color> colors) {
-    ctx.uniform4fv(location, colors.map((e) => e.asList).toList());
+  void setData(Colors colors) {
+    ctx.uniform4fv(location, colors.asDataList);
   }
 
   static ColorsUniform make(
