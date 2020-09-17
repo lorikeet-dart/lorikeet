@@ -17,5 +17,5 @@ class LinearGradient {
 
   factory LinearGradient.between(Color start, Color end, {num angle}) =>
       LinearGradient(
-          angle: angle, stops: [ColorStop(start, 0), ColorStop(end, 100)]);
+          angle: angle, stops: [ColorStop(start, 0), ColorStop(end, 1)]);
 }

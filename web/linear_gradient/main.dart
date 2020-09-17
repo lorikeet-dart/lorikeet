@@ -31,16 +31,16 @@ Future<void> main() async {
 
     {
       final rect = LinearGradientMesh.make(
-          Rectangle(10, 10, 250, 250),
+          Rectangle(10, 10, 90, 90),
           LinearGradient.between(Color(r: 1, a: 1), Color(b: 1, a: 1),
-              angle: 30),
+              angle: 0),
           color: Color(r: 1, a: 1));
       objects.add(rect);
     }
 
     {
       final rect = LinearGradientMesh.make(
-          Rectangle(270, 10, 250, 250),
+          Rectangle(110, 10, 90, 90),
           LinearGradient.between(Color(r: 1, a: 1), Color(b: 1, a: 1),
               angle: rotation * 10),
           color: Color(r: 1, a: 1));
