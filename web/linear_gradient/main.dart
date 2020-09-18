@@ -27,6 +27,8 @@ Future<void> main() async {
     final seconds = watch.inSeconds ~/ 5;
     int rotation = seconds % 36;
 
+    // print(rotation * 10);
+
     final objects = <Mesh2D>[];
 
     {
@@ -41,6 +43,70 @@ Future<void> main() async {
     {
       final rect = LinearGradientMesh.make(
           Rectangle(110, 10, 90, 90),
+          LinearGradient.between(Color(r: 1, a: 1), Color(b: 1, a: 1),
+              angle: 90),
+          color: Color(r: 1, a: 1));
+      objects.add(rect);
+    }
+
+    {
+      final rect = LinearGradientMesh.make(
+          Rectangle(210, 10, 90, 90),
+          LinearGradient.between(Color(r: 1, a: 1), Color(b: 1, a: 1),
+              angle: 180),
+          color: Color(r: 1, a: 1));
+      objects.add(rect);
+    }
+
+    {
+      final rect = LinearGradientMesh.make(
+          Rectangle(310, 10, 90, 90),
+          LinearGradient.between(Color(r: 1, a: 1), Color(b: 1, a: 1),
+              angle: 270),
+          color: Color(r: 1, a: 1));
+      objects.add(rect);
+    }
+
+
+    {
+      final rect = LinearGradientMesh.make(
+          Rectangle(10, 110, 90, 90),
+          LinearGradient.between(Color(r: 1, a: 1), Color(b: 1, a: 1),
+              angle: 10),
+          color: Color(r: 1, a: 1));
+      objects.add(rect);
+    }
+
+    {
+      final rect = LinearGradientMesh.make(
+          Rectangle(110, 110, 90, 90),
+          LinearGradient.between(Color(r: 1, a: 1), Color(b: 1, a: 1),
+              angle: 100),
+          color: Color(r: 1, a: 1));
+      objects.add(rect);
+    }
+
+    {
+      final rect = LinearGradientMesh.make(
+          Rectangle(210, 110, 90, 90),
+          LinearGradient.between(Color(r: 1, a: 1), Color(b: 1, a: 1),
+              angle: 190),
+          color: Color(r: 1, a: 1));
+      objects.add(rect);
+    }
+
+    {
+      final rect = LinearGradientMesh.make(
+          Rectangle(310, 110, 90, 90),
+          LinearGradient.between(Color(r: 1, a: 1), Color(b: 1, a: 1),
+              angle: 280),
+          color: Color(r: 1, a: 1));
+      objects.add(rect);
+    }
+
+    {
+      final rect = LinearGradientMesh.make(
+          Rectangle(310, 10, 90, 90),
           LinearGradient.between(Color(r: 1, a: 1), Color(b: 1, a: 1),
               angle: rotation * 10),
           color: Color(r: 1, a: 1));

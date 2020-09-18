@@ -137,8 +137,8 @@ class LinearGradientMesh implements Mesh2D {
     }
 
     final baseC = basePoint.y - baseSlope * basePoint.x;
-    final perpSlope = baseSlope != 0 ? -1 / baseSlope : 1;
-    final totalDistance = _distance(baseSlope, basePoint, endPoint);
+    final perpSlope = tan(degToRad(angle + 90));
+    final totalDistance = _distance(baseSlope, perpSlope, basePoint, endPoint);
 
     return LinearGradientMesh(box, vertices, texCoords,
         transformationMatrix: transformationMatrix,
@@ -152,19 +152,19 @@ class LinearGradientMesh implements Mesh2D {
   }
 }
 
-Point _perpendicularIntercept(num slope, num c) {
-  num x = -(c * slope) / (1 + slope * slope);
+Point _perpendicularIntercept(num slope, num perpSlope, num c, num perpC) {
+  num x = (c - perpC)/(perpSlope - slope);
   num y = slope * x + c;
 
   return Point(x, y);
 }
 
-num _distance(num slope, Point line1, Point line2) {
-  final c1 = line1.y - slope * line1.x;
+num _distance(num slope, num perpSlope, Point line1, Point line2) {
   final c2 = line2.y - slope * line2.x;
 
-  final i1 = _perpendicularIntercept(slope, c1);
-  final i2 = _perpendicularIntercept(slope, c2);
+  final cPerp = line1.y - perpSlope * line1.x;
 
-  return i1.distanceTo(i2);
+  final i1 = _perpendicularIntercept(slope, perpSlope, c2, cPerp);
+
+  return line1.distanceTo(i1);
 }
