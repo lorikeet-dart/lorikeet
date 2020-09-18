@@ -67,7 +67,6 @@ Future<void> main() async {
       objects.add(rect);
     }
 
-
     {
       final rect = LinearGradientMesh.make(
           Rectangle(10, 110, 90, 90),
@@ -106,7 +105,7 @@ Future<void> main() async {
 
     {
       final rect = LinearGradientMesh.make(
-          Rectangle(310, 10, 90, 90),
+          Rectangle(10, 310, 90, 90),
           LinearGradient.between(Color(r: 1, a: 1), Color(b: 1, a: 1),
               angle: rotation * 10),
           color: Color(r: 1, a: 1));

@@ -20,6 +20,7 @@ class LinearGradientRenderer implements Mesh2DRenderer<LinearGradientMesh> {
 
   final ColorUniform bgColorUniform;
 
+  final FloatUniform angle;
   final FloatUniform baseC;
   final FloatUniform baseSlope;
   final FloatUniform perpSlope;
@@ -37,6 +38,7 @@ class LinearGradientRenderer implements Mesh2DRenderer<LinearGradientMesh> {
     this.projectionMatrix,
     this.transformationMatrix,
     this.bgColorUniform,
+    this.angle,
     this.baseC,
     this.baseSlope,
     this.perpSlope,
@@ -60,6 +62,7 @@ class LinearGradientRenderer implements Mesh2DRenderer<LinearGradientMesh> {
     texCoords.set(object.texCoords.asDataList);
     bgColorUniform.setData(object.color);
 
+    angle.setData(object.angle);
     baseC.setData(object.baseC);
     baseSlope.setData(object.baseSlope);
     perpSlope.setData(object.perpSlope);
@@ -88,11 +91,12 @@ void main(void){
   ''';
 
   static const fragmentShaderSource = '''
-precision mediump float;
+precision highp float;
 
 #define MAX_STOPS 2
   
 uniform vec4 bgColor;
+uniform float angle;
 uniform float baseSlope;
 uniform float baseC;
 uniform float perpSlope;
@@ -105,10 +109,15 @@ uniform int stopCount;
 varying vec2 vTexCoord;
 
 void main(void) {
-  float perpC = vTexCoord.y - perpSlope * vTexCoord.x;
-  float projectionX = (perpC - baseC)/(baseSlope - perpSlope);
-  float projectionY = baseSlope * projectionX + baseC;
-  float distance = sqrt(pow(projectionX - vTexCoord.x, 2.0) + pow(projectionY - vTexCoord.y, 2.0));
+  float distance;
+  if(angle == 90.0) {
+    distance = 1.0 - vTexCoord.x;
+  } else {
+    float perpC = vTexCoord.y - perpSlope * vTexCoord.x;
+    float projectionX = (perpC - baseC)/(baseSlope - perpSlope);
+    float projectionY = baseSlope * projectionX + baseC;
+    distance = sqrt(pow(projectionX - vTexCoord.x, 2.0) + pow(projectionY - vTexCoord.y, 2.0));
+  }
   float distancePercent = distance/totalDistance;
   
   float start = stops[0], end = stops[0];
@@ -178,6 +187,7 @@ void main(void) {
     final transformationMatrixUniform =
         Matrix4Uniform.make(ctx, program, 'transformationMatrix');
     final bgColorUniform = ColorUniform.make(ctx, program, 'bgColor');
+    final angle = FloatUniform.make(ctx, program, 'angle');
     final baseC = FloatUniform.make(ctx, program, 'baseC');
     final baseSlope = FloatUniform.make(ctx, program, 'baseSlope');
     final perpSlope = FloatUniform.make(ctx, program, 'perpSlope');
@@ -194,6 +204,7 @@ void main(void) {
       projectionMatrix: projectionMatrixUniform,
       transformationMatrix: transformationMatrixUniform,
       bgColorUniform: bgColorUniform,
+      angle: angle,
       baseC: baseC,
       baseSlope: baseSlope,
       perpSlope: perpSlope,

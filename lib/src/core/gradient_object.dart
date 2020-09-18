@@ -16,6 +16,8 @@ class LinearGradientMesh implements Mesh2D {
 
   final Color color;
 
+  final num angle;
+
   final num baseSlope;
 
   final num baseC;
@@ -31,6 +33,7 @@ class LinearGradientMesh implements Mesh2D {
   LinearGradientMesh(this.box, this.vertices, this.texCoords,
       {Matrix4 transformationMatrix,
       Color color,
+      this.angle,
       this.baseSlope,
       this.baseC,
       this.perpSlope,
@@ -119,7 +122,7 @@ class LinearGradientMesh implements Mesh2D {
     if (angle.isNegative) {
       angle = 360 - angle;
     }
-    final baseSlope = tan(degToRad(angle));
+    num baseSlope = tan(degToRad(angle));
 
     Point<num> basePoint, endPoint;
     if (angle < 90) {
@@ -143,6 +146,7 @@ class LinearGradientMesh implements Mesh2D {
     return LinearGradientMesh(box, vertices, texCoords,
         transformationMatrix: transformationMatrix,
         color: color,
+        angle: angle,
         baseC: baseC,
         baseSlope: baseSlope,
         perpSlope: perpSlope,
@@ -153,7 +157,7 @@ class LinearGradientMesh implements Mesh2D {
 }
 
 Point _perpendicularIntercept(num slope, num perpSlope, num c, num perpC) {
-  num x = (c - perpC)/(perpSlope - slope);
+  num x = (c - perpC) / (perpSlope - slope);
   num y = slope * x + c;
 
   return Point(x, y);
