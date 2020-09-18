@@ -93,7 +93,7 @@ void main(void){
   static const fragmentShaderSource = '''
 precision highp float;
 
-#define MAX_STOPS 2
+#define MAX_STOPS 10
   
 uniform vec4 bgColor;
 uniform float angle;
