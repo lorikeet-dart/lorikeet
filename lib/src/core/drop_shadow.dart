@@ -6,16 +6,16 @@ import 'package:lorikeet/src/primitive/primitive.dart';
 class DropShadow {
   final Point<int> offset;
 
-  final int blur;
+  final num blur;
 
-  final int scale; // TODO could this be a vector
+  final int spread;
 
   final Color color;
 
   DropShadow(
       {this.offset = const Point(0, 0),
       this.blur = 0,
-      this.scale = 1,
+      this.spread = 0,
       Color color})
       : color = color ?? Color(a: 1);
 }
@@ -31,8 +31,10 @@ class DropShadowMesh implements Mesh2D {
 
   final Color color;
 
+  final double blur;
+
   DropShadowMesh(this.box, this.vertices, this.texCoords,
-      {Matrix4 transformationMatrix, this.color}) {
+      {Matrix4 transformationMatrix, this.color, this.blur}) {
     if (transformationMatrix != null) {
       this.transformationMatrix.copyFrom(transformationMatrix);
     }
@@ -42,6 +44,10 @@ class DropShadowMesh implements Mesh2D {
       {List<Point<num>> path,
       Matrix4 transformationMatrix,
       Transform transform}) {
+    box = box.expand(shadow.spread);
+    box = Rectangle(box.left + shadow.offset.x, box.top + shadow.offset.y,
+        box.width, box.height);
+
     Vertex2s vertices;
     Vertex2s texCoords;
 
@@ -110,6 +116,8 @@ class DropShadowMesh implements Mesh2D {
     }
 
     return DropShadowMesh(box, vertices, texCoords,
-        transformationMatrix: transformationMatrix, color: shadow.color);
+        transformationMatrix: transformationMatrix,
+        color: shadow.color,
+        blur: shadow.blur);
   }
 }

@@ -143,7 +143,7 @@ class Renderer {
     final noTexture = makePixelTexture(ctx, Color());
     final object2DRenderer = Object2DRenderer.build(ctx);
     final linearGradientRenderer = LinearGradientRenderer.build(ctx);
-    // final dropShadowRenderer = DropShadowRenderer.build(ctx);
+    final dropShadowRenderer = DropShadowRenderer.build(ctx);
 
     final ret = Renderer._(
       canvas: canvas,
@@ -153,7 +153,7 @@ class Renderer {
       projectionMatrix: projectionMatrix,
       object2DRenderer: object2DRenderer,
       linearGradientRenderer: linearGradientRenderer,
-      // dropShadowRenderer: dropShadowRenderer,
+      dropShadowRenderer: dropShadowRenderer,
     );
 
     ret.adjustSize();

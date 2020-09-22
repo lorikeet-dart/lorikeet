@@ -20,6 +20,8 @@ class DropShadowRenderer implements Mesh2DRenderer<DropShadowMesh> {
 
   final ColorUniform bgColorUniform;
 
+  final FloatUniform blurUniform;
+
   DropShadowRenderer({
     this.ctx,
     this.program,
@@ -28,6 +30,7 @@ class DropShadowRenderer implements Mesh2DRenderer<DropShadowMesh> {
     this.projectionMatrix,
     this.transformationMatrix,
     this.bgColorUniform,
+    this.blurUniform,
   });
 
   @override
@@ -44,6 +47,7 @@ class DropShadowRenderer implements Mesh2DRenderer<DropShadowMesh> {
     texCoords.set(object.texCoords.asDataList);
     bgColorUniform.setData(object.color);
 
+    blurUniform.setData(object.blur);
     // TODO
 
     ctx.drawArrays(WebGL.TRIANGLES, 0, numVertices);
@@ -68,12 +72,25 @@ void main(void){
 precision mediump float;
   
 uniform vec4 bgColor;
+uniform float blur;
 
 varying vec2 vTexCoord;
 
 void main(void) {
-  vec4 gradColor = vec4(1, 0, 1, 0.5);
-  gl_FragColor = bgColor * (1.0 - gradColor.w) + gradColor * gradColor.w;
+  float blurXPercent = 1.0;
+  if(vTexCoord.x < blur) {
+    blurXPercent = vTexCoord.x/blur;
+  } else if(vTexCoord.x > 1.0 - blur) {
+    blurXPercent = (1.0 - vTexCoord.x)/blur;
+  }
+  float blurYPercent = 1.0;
+  if(vTexCoord.y < blur) {
+    blurYPercent = vTexCoord.y/blur;
+  } else if(vTexCoord.y > 1.0 - blur) {
+    blurYPercent = (1.0 - vTexCoord.y)/blur;
+  }
+  float blurPercent = blurXPercent * blurYPercent;
+  gl_FragColor = vec4(bgColor.xyz, bgColor.w * blurPercent);
 }
   ''';
 
@@ -116,6 +133,7 @@ void main(void) {
     final transformationMatrixUniform =
         Matrix4Uniform.make(ctx, program, 'transformationMatrix');
     final bgColorUniform = ColorUniform.make(ctx, program, 'bgColor');
+    final blurUniform = FloatUniform.make(ctx, program, 'blur');
 
     return DropShadowRenderer(
       ctx: ctx,
@@ -125,6 +143,7 @@ void main(void) {
       projectionMatrix: projectionMatrixUniform,
       transformationMatrix: transformationMatrixUniform,
       bgColorUniform: bgColorUniform,
+      blurUniform: blurUniform,
     );
   }
 }
