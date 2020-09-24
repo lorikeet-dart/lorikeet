@@ -69,6 +69,7 @@ void main(void){
   ''';
 
   static const fragmentShaderSource = '''
+#extension GL_OES_standard_derivatives : enable
 precision mediump float;
   
 uniform vec4 bgColor;
@@ -89,7 +90,14 @@ void main(void) {
   } else if(vTexCoord.y > 1.0 - blur) {
     blurYPercent = (1.0 - vTexCoord.y)/blur;
   }
-  float blurPercent = blurXPercent * blurYPercent;
+  float blurPercent = min(blurXPercent, blurYPercent);
+  if(abs(blurXPercent - blurYPercent) < 0.05) {
+    // blurPercent -= dFdx(blurPercent);
+  } 
+  if(blurXPercent != 1.0 && blurYPercent != 1.0) {
+    float tmp = 1.0 - sqrt(pow(1.0 - blurXPercent, 2.0) + pow(1.0 - blurYPercent, 2.0));
+    blurPercent = tmp;
+  }
   gl_FragColor = vec4(bgColor.xyz, bgColor.w * blurPercent);
 }
   ''';

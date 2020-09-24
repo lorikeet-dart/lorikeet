@@ -137,8 +137,10 @@ class Renderer {
       {Color clearColor, Matrix4 projectionMatrix, Map contextAttributes}) {
     clearColor ??= Color();
 
-    final ctx = canvas.getContext('webgl2',
+    final RenderingContext2 ctx = canvas.getContext('webgl2',
         Map.from(contextAttributes ?? {})..['premultipliedAlpha'] = false);
+    ctx.getExtension('OES_standard_derivatives');
+    print(ctx.getSupportedExtensions());
 
     final noTexture = makePixelTexture(ctx, Color());
     final object2DRenderer = Object2DRenderer.build(ctx);
