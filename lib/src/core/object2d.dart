@@ -138,8 +138,8 @@ class Object2D implements Mesh2D {
 
       // TODO compute translation
 
-      Point<num> texSize = Point(
-          tex.width * image.scale.x / 100, tex.height * image.scale.y / 100);
+      Point<num> texSize =
+          Point(tex.width * image.scale.x, tex.height * image.scale.y);
       Point<num> resultSize;
 
       Point<num> translation = Point(0, 0);
@@ -157,6 +157,8 @@ class Object2D implements Mesh2D {
       } else if (image.fillType == FillType.repeat) {
         resultSize = computeRepeat(box.size, texSize);
         repeatTexture = true;
+        translation =
+            image.anchorPoint - (image.position.multiplyPoint(resultSize));
       }
 
       // TODO move this scaling to vertex shader

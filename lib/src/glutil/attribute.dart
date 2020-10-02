@@ -15,8 +15,7 @@ class AttributeInfo {
   void set(TypedData data) {
     ctx.bindBuffer(WebGL.ARRAY_BUFFER, buffer);
     ctx.enableVertexAttribArray(location);
-    ctx.vertexAttribPointer(
-        location, 2, WebGL.FLOAT, false, 0, 0);
+    ctx.vertexAttribPointer(location, 2, WebGL.FLOAT, false, 0, 0);
     ctx.bufferData(WebGL.ARRAY_BUFFER, data, WebGL.STATIC_DRAW);
   }
 

@@ -67,7 +67,7 @@ Future<void> main() async {
               image: ImageProperties(renderer.getTexture('dart'),
                   anchorPoint: Point(0.5, 0.5),
                   position: Point(0.5, 0.5),
-                  scale: Point(200, 200))));
+                  scale: Point(2, 2))));
       objects.add(rect);
     }
 
@@ -76,7 +76,9 @@ Future<void> main() async {
           background: Background(
               color: Color(r: 1.0, a: 1.0),
               image: ImageProperties(renderer.getTexture('dart'),
-                  anchorPoint: Point(1, 1), position: Point(1, 1))));
+                  anchorPoint: Point(1, 1),
+                  position: Point(1, 1),
+                  scale: Point(2, 2))));
       objects.add(rect);
     }
 
@@ -85,7 +87,9 @@ Future<void> main() async {
           background: Background(
               color: Color(r: 1.0, a: 1.0),
               image: ImageProperties(renderer.getTexture('dart'),
-                  anchorPoint: Point(0, 1), position: Point(0, 1))));
+                  anchorPoint: Point(0, 1),
+                  position: Point(0, 1),
+                  scale: Point(2, 2))));
       objects.add(rect);
     }
 
@@ -94,7 +98,9 @@ Future<void> main() async {
           background: Background(
               color: Color(r: 1.0, a: 1.0),
               image: ImageProperties(renderer.getTexture('dart'),
-                  anchorPoint: Point(0, 0), position: Point(0, 0))));
+                  anchorPoint: Point(0, 0),
+                  position: Point(0, 0),
+                  scale: Point(2, 2))));
       objects.add(rect);
     }
 
@@ -103,7 +109,9 @@ Future<void> main() async {
           background: Background(
               color: Color(r: 1.0, a: 1.0),
               image: ImageProperties(renderer.getTexture('dart'),
-                  anchorPoint: Point(1, 0), position: Point(1, 0))));
+                  anchorPoint: Point(1, 0),
+                  position: Point(1, 0),
+                  scale: Point(2, 2))));
       objects.add(rect);
     }
   }

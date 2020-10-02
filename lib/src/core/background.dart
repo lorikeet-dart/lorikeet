@@ -22,7 +22,7 @@ class ImageProperties {
       this.position = const Point(0, 0),
       this.anchorPoint = const Point(0, 0),
       this.fillType = FillType.normal,
-      this.scale = const Point<num>(100, 100)}) {
+      this.scale = const Point<num>(1, 1)}) {
     if (texture == null) {
       throw Exception('image cannot be null');
     }

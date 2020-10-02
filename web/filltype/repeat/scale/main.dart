@@ -17,7 +17,7 @@ Future<void> main() async {
         background: Background(
             color: Color(r: 1.0, a: 1.0),
             image: ImageProperties(renderer.getTexture('dart'),
-                fillType: FillType.repeat, scale: Point(80, 120))));
+                fillType: FillType.repeat, scale: Point(0.8, 1.2))));
     objects.add(rect);
   }
 

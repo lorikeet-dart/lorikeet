@@ -18,7 +18,7 @@ Future<void> main() async {
         background: Background(
             color: Color(r: 0.8, g: 0.8, b: 0.6, a: 1.0),
             image: ImageProperties(renderer.getTexture('dart'),
-                fillType: FillType.contain, scale: Point(100, 120))));
+                fillType: FillType.contain, scale: Point(1, 1.2))));
     objects.add(rect);
   }
 
@@ -28,7 +28,7 @@ Future<void> main() async {
         background: Background(
             color: Color(r: 0.8, g: 0.8, b: 0.6, a: 1.0),
             image: ImageProperties(renderer.getTexture('dart'),
-                fillType: FillType.contain, scale: Point(100, 50))));
+                fillType: FillType.contain, scale: Point(1, 0.5))));
     objects.add(rect);
   }
 
@@ -38,7 +38,7 @@ Future<void> main() async {
         background: Background(
             color: Color(r: 0.8, g: 0.8, b: 0.6, a: 1.0),
             image: ImageProperties(renderer.getTexture('dart'),
-                fillType: FillType.contain, scale: Point(50, 100))));
+                fillType: FillType.contain, scale: Point(0.50, 1))));
     objects.add(rect);
   }
 
@@ -48,7 +48,7 @@ Future<void> main() async {
         background: Background(
             color: Color(r: 0.8, g: 0.8, b: 0.6, a: 1.0),
             image: ImageProperties(renderer.getTexture('dart'),
-                fillType: FillType.contain, scale: Point(80, 120))));
+                fillType: FillType.contain, scale: Point(0.80, 1.20))));
     objects.add(rect);
   }
 

@@ -21,6 +21,50 @@ Future<void> main() async {
     objects.add(rect);
   }
 
+  {
+    final rect = Object2D.make(Rectangle(500, 50, 400, 400),
+        background: Background(
+            color: Color(r: 1.0, a: 1.0),
+            image: ImageProperties(renderer.getTexture('dart'),
+                fillType: FillType.repeat,
+                anchorPoint: Point(0.5, 0.5),
+                position: Point(0.5, 0.5))));
+    objects.add(rect);
+  }
+
+  {
+    final rect = Object2D.make(Rectangle(1000, 50, 300, 300),
+        background: Background(
+            color: Color(r: 1.0, a: 1.0),
+            image: ImageProperties(renderer.getTexture('dart'),
+                fillType: FillType.repeat,
+                anchorPoint: Point(1, 1),
+                position: Point(1, 1))));
+    objects.add(rect);
+  }
+
+  {
+    final rect = Object2D.make(Rectangle(1400, 50, 300, 300),
+        background: Background(
+            color: Color(r: 1.0, a: 1.0),
+            image: ImageProperties(renderer.getTexture('dart'),
+                fillType: FillType.repeat,
+                anchorPoint: Point(0, 1),
+                position: Point(0, 1))));
+    objects.add(rect);
+  }
+
+  {
+    final rect = Object2D.make(Rectangle(1800, 50, 300, 300),
+        background: Background(
+            color: Color(r: 1.0, a: 1.0),
+            image: ImageProperties(renderer.getTexture('dart'),
+                fillType: FillType.repeat,
+                anchorPoint: Point(1, 0),
+                position: Point(1, 0))));
+    objects.add(rect);
+  }
+
   void render() {
     renderer.render(objects);
     /*window.requestAnimationFrame((highResTime) {
