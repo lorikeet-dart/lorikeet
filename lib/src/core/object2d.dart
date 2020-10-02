@@ -146,8 +146,6 @@ class Object2D implements Mesh2D {
       if (image.fillType == FillType.normal) {
         // final anchor = tex.size.multiplyPoint(image.anchorPoint);
         resultSize = computeNormal(box.size, texSize);
-        translation =
-            image.anchorPoint - (image.position.multiplyPoint(resultSize));
       } else if (image.fillType == FillType.stretch) {
         resultSize = Point<num>(1, 1);
       } else if (image.fillType == FillType.contain) {
@@ -157,9 +155,10 @@ class Object2D implements Mesh2D {
       } else if (image.fillType == FillType.repeat) {
         resultSize = computeRepeat(box.size, texSize);
         repeatTexture = true;
-        translation =
-            image.anchorPoint - (image.position.multiplyPoint(resultSize));
       }
+
+      translation =
+          image.anchorPoint - (image.position.multiplyPoint(resultSize));
 
       // TODO move this scaling to vertex shader
       texCoords.multiply(resultSize.toVertex2);
