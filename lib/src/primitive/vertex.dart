@@ -49,6 +49,13 @@ class Vertex2s {
     }
   }
 
+  void add(Vertex2 other) {
+    for (int i = 0; i < _data.length; i += 2) {
+      _data[i] += other.x;
+      _data[i + 1] += other.y;
+    }
+  }
+
   void multiply(Vertex2 other) {
     for (int i = 0; i < _data.length; i += 2) {
       _data[i] *= other.x;

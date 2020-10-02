@@ -6,6 +6,8 @@ extension PointSize on Point<num> {
   num get width => x;
   num get height => y;
 
+  Point<num> multiplyPoint(Point<num> other) => Point(x * other.x, y * other.y);
+
   Vertex2 get toVertex2 => Vertex2(x: x, y: y);
 }
 

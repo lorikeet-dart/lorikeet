@@ -15,14 +15,14 @@ class ImageProperties {
 
   final FillType fillType;
 
-  final Point<num> size;
+  final Point<num> scale;
 
   ImageProperties(this.texture,
       {this.textureRegion,
       this.position = const Point(0, 0),
       this.anchorPoint = const Point(0, 0),
       this.fillType = FillType.normal,
-      this.size = const Point<num>(100, 100)}) {
+      this.scale = const Point<num>(100, 100)}) {
     if (texture == null) {
       throw Exception('image cannot be null');
     }

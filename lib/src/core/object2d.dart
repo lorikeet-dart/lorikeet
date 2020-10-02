@@ -4,7 +4,7 @@ import 'background.dart';
 import 'filltype.dart';
 import 'package:lorikeet/src/primitive/primitive.dart';
 
-abstract class Mesh2D {} 
+abstract class Mesh2D {}
 
 class Object2D implements Mesh2D {
   final Rectangle box;
@@ -136,25 +136,32 @@ class Object2D implements Mesh2D {
       final tex = image.textureRegion ??
           Rectangle.fromPoints(Point(0, 0), image.texture.size);
 
-      Point<num> texSize = Point(
-          tex.width * image.size.x / 100, tex.height * image.size.y / 100);
-      Point<num> result;
+      // TODO compute translation
 
+      Point<num> texSize = Point(
+          tex.width * image.scale.x / 100, tex.height * image.scale.y / 100);
+      Point<num> resultSize;
+
+      Point<num> translation = Point(0, 0);
       if (image.fillType == FillType.normal) {
-        result = computeNormal(box.size, texSize);
+        // final anchor = tex.size.multiplyPoint(image.anchorPoint);
+        resultSize = computeNormal(box.size, texSize);
+        translation =
+            image.anchorPoint - (image.position.multiplyPoint(resultSize));
       } else if (image.fillType == FillType.stretch) {
-        result = Point<num>(1, 1);
+        resultSize = Point<num>(1, 1);
       } else if (image.fillType == FillType.contain) {
-        result = computeContain(box.size, texSize);
+        resultSize = computeContain(box.size, texSize);
       } else if (image.fillType == FillType.cover) {
-        result = computeCover(box.size, texSize);
+        resultSize = computeCover(box.size, texSize);
       } else if (image.fillType == FillType.repeat) {
-        result = computeRepeat(box.size, texSize);
+        resultSize = computeRepeat(box.size, texSize);
         repeatTexture = true;
       }
 
       // TODO move this scaling to vertex shader
-      texCoords.multiply(result.toVertex2);
+      texCoords.multiply(resultSize.toVertex2);
+      texCoords.add(translation.toVertex2);
 
       textureRegion = tex.divide(image.texture.size);
     }
